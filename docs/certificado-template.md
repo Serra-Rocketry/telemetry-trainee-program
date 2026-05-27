@@ -44,4 +44,4 @@ Concluiu com êxito o programa de treinamento de **8 semanas** da equipe de **Te
 ---
 
 > Serra Rocketry — Equipe de Telemetria e Controle
-> https://github.com/ViniciusCMB/telemetry-trainee-program
+> https://github.com/Serra-Rocketry/telemetry-trainee-program

@@ -37,9 +37,9 @@ Links curados organizados por tecnologia.
 - [ERC — Electrical Rules Check](https://docs.kicad.org/8.0/pt/eeschema/eeschema_erc.html) — documentação do ERC
 
 ## Projetos da equipe
+- [Flight Computer](https://github.com/Serra-Rocketry/flight-computer)
 
-- [Flight Computer](https://github.com/ViniciusCMB/flight-computer)
-- [Helike (satélite)](https://github.com/ViniciusCMB/satellite)
+- [Helike (satélite)](https://github.com/Serra-Rocketry/satellite)
 
 ## Geral
 

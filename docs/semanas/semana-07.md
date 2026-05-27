@@ -81,8 +81,8 @@ Indique onde cada semana do treinamento se aplica neste fluxo.
 - Por que o Helike usa PlatformIO e o FC usa Arduino IDE?
 
 ## Referências
+- [Repositório Flight Computer](https://github.com/Serra-Rocketry/flight-computer)
 
-- [Repositório Flight Computer](https://github.com/ViniciusCMB/flight-computer)
-- [Repositório Helike](https://github.com/ViniciusCMB/satellite)
+- [Repositório Helike](https://github.com/Serra-Rocketry/satellite)
 - [Slide deck](../slides/semana-07.html)
 - [Quiz](../quiz/semana-07.html)
