@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 07 — Flight Computer & Helike</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 07</h1>
+        <h2>Flight Computer & Helike</h2>
+        <p class="subtitle">Arquitetura dos sistemas reais de telemetria</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Entender arquitetura do Flight Computer (FC)</li>
+          <li>Conhecer o projeto Helike PocketQube</li>
+          <li>Compreender como a telemetria conecta os sistemas</li>
+          <li>Identificar oportunidades de contribuição</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>O que é o Flight Computer?</h2>
+        <p>O Flight Computer (FC) é o cérebro do foguete/satélite:</p>
+        <ul>
+          <li>Processador principal (STM32, Teensy, RP2040)</li>
+          <li>Sensores: IMU, BMP280, GPS, magnetômetro</li>
+          <li>Atuadores: servo para paraquedas, buzzers, LEDs</li>
+          <li>Comunicação: LoRa (rádio), XBee, WiFi (solo)</li>
+          <li>Armazenamento: cartão SD para log de voo</li>
+          <li>Bateria: LiPo 2S-4S com BMS</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Arquitetura do FC</h2>
+        <pre><code class="language-text">┌─────────────────────────────────────────────────┐
+│                 FLIGHT COMPUTER                  │
+│                                                   │
+│  ┌──────────┐   I2C   ┌──────────┐               │
+│  │  BMP280  │◄────────┤          │               │
+│  │  (press) │         │          │               │
+│  └──────────┘         │          │               │
+│  ┌──────────┐   SPI   │   MCU    │──── UART ────► LoRa
+│  │  ICM20948│◄────────┤ (STM32)  │               │
+│  │ (IMU/Gyro)│        │          │               │
+│  └──────────┘         │          │──── SPI ─────► SD Card
+│  ┌──────────┐   UART  │          │               │
+│  │   GPS    │◄────────┤          │               │
+│  └──────────┘         └──────────┘               │
+│                              │                    │
+│                         ┌────┴────┐              │
+│                         │  BATERIA │              │
+│                         │  LiPo 3S │              │
+│                         └─────────┘              │
+└─────────────────────────────────────────────────┘</code></pre>
+      </section>
+
+      <section>
+        <h2>FSM — Finite State Machine</h2>
+        <p>O FC opera em uma máquina de estados:</p>
+        <pre><code class="language-text">        ┌──────────┐
+        │  IDLE    │ (solo, esperando lancamento)
+        └────┬─────┘
+             │ comando de lancamento
+        ┌────▼─────┐
+        │  BOOST   │ (motor acionado)
+        └────┬─────┘
+             │ burnout
+        ┌────▼─────┐
+        │ COAST    │ (ascensao balistica)
+        └────┬─────┘
+             │ apogeu detectado
+        ┌────▼─────┐
+        │ DROGUE   │ (paraquedas piloto)
+        └────┬─────┘
+             │ altitude segura
+        ┌────▼─────┐
+        │ MAIN     │ (paraquedas principal)
+        └────┬─────┘
+             │ pouso detectado
+        ┌────▼─────┐
+        │  LANDED  │ (log final, beacon)
+        └──────────┘</code></pre>
+      </section>
+
+      <section>
+        <h2>Telemetria no FC</h2>
+        <p>O FC transmite pacotes de telemetria a cada ~50ms (20 Hz):</p>
+        <pre><code class="language-cpp">// Estrutura do pacote de telemetria
+struct TelemetryPacket {
+  uint32_t timestamp;    // ms desde o boot
+  uint8_t  state;        // estado da FSM
+  float    altitude;     // metros
+  float    temperature;  // Celsius
+  float    pressure;     // Pascal
+  float    voltage;      // Volts (bateria)
+  float    accel_x;      // m/s^2
+  float    accel_y;
+  float    accel_z;
+  float    gyro_x;       // rad/s
+  float    gyro_y;
+  float    gyro_z;
+  uint8_t  checksum;     // XOR de todos os bytes
+} __attribute__((packed));</code></pre>
+      </section>
+
+      <section>
+        <h2>Helike PocketQube</h2>
+        <p>Helike é um satélite no formato PocketQube (5×5×5 cm):</p>
+        <ul>
+          <li>Padrão: 1P (5cm³) — ultra-compacto</li>
+          <li>Missão: coleta de dados ionosféricos</li>
+          <li>Órbita: LEO (Low Earth Orbit), ~400 km</li>
+          <li>Comunicação: LoRa ou AX.25 via rádio amador</li>
+          <li>CDB (Command & Data Base) — protocolo de bordo</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>CDB — Command & Data Base</h2>
+        <p>O CDB define todos os parâmetros, comandos e formatos:</p>
+        <pre><code class="language-text">CDB define:
+- IDs de cada pacote telemetrico
+- Formatos de comando (TC)
+- Formatos de telemetria (TM)
+- Limites operacionais
+- Tabela de calibracao dos sensores
+
+Exemplo de entrada CDB:
+TM_ID=0x01  PACOTE_ESTADO
+  timestamp : uint32_t  (ms)
+  state     : uint8_t   (FSM state)
+  altitude  : float     (m)
+  temp_bat  : float     (Celsius)
+  voltage   : float     (V)
+
+TC_ID=0xA0  COMANDO_RESET
+  magic     : uint16_t  (0x5A5A)
+  delay_ms  : uint32_t  (ms ate reset)</code></pre>
+      </section>
+
+      <section>
+        <h2>LoRa — Rádio Comunicação</h2>
+        <p>LoRa (Long Range) é o link de rádio do Helike:</p>
+        <ul>
+          <li>Frequência: 433 MHz ou 915 MHz (ISM band)</li>
+          <li>Alcance: até 10 km (solo) ou ~2000 km (satélite)</li>
+          <li>Taxa: 300 bps a 50 kbps</li>
+          <li>Modulação: Chirp Spread Spectrum (CSS)</li>
+          <li>Baixíssimo consumo de energia</li>
+        </ul>
+        <pre><code class="language-cpp">// Configuracao LoRa tipica
+#include &lt;LoRa.h&gt;
+
+void setup() {
+  LoRa.setPins(SS, RST, DIO0);
+  LoRa.begin(433E6);     // 433 MHz
+  LoRa.setSpreadingFactor(12);    // alcance maximo
+  LoRa.setCodingRate4(8);         // robustez
+  LoRa.setTxPower(20);            // 20 dBm
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>SRAB — Sistema de Recuperação</h2>
+        <p>SRAB (Sistema de Recuperação e Aterrissagem do Bob):</p>
+        <ul>
+          <li>Atuador: servo motor para liberação do paraquedas</li>
+          <li>Acionado pela FSM quando apogeu é detectado</li>
+          <li>Critérios: altitude decrescente por N amostras consecutivas</li>
+          <li>Redundância: timer de segurança (watchdog)</li>
+        </ul>
+        <pre><code class="language-cpp">void check_apogee(float altitude) {
+  static float alt_max = 0;
+  static int amostras_descendo = 0;
+
+  if (altitude > alt_max) {
+    alt_max = altitude;
+    amostras_descendo = 0;
+  } else {
+    amostras_descendo++;
+  }
+
+  // Apogeu confirmado apos 10 amostras descendo
+  if (amostras_descendo >= 10 && estado == COAST) {
+    estado = DROGUE;
+    servo.write(180);  // libera paraquedas
+    log_event("APOGEE_DETECTED");
+  }
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Como a Telemetria se Conecta</h2>
+        <pre><code class="language-text">      SPACE SEGMENT                    GROUND SEGMENT
+┌──────────────────────┐        ┌──────────────────────────┐
+│  Helike PocketQube   │        │   Estacao de Solo        │
+│                      │ LORA   │                          │
+│  ┌────┐    ┌──────┐  │◄──────►│  ┌──────┐  ┌─────────┐  │
+│  │ FC │───►│ LoRa │  │        │  │ LoRa │─►│ Python  │  │
+│  │    │    │ RFM96│  │        │  │ RFM96│  │ Parsing │  │
+│  │ FSM│    └──────┘  │        │  └──────┘  │ Valid.  │  │
+│  │ TM │              │        │            │ Log CSV │  │
+│  └────┘              │        │            │ Graf.   │  │
+│                      │        │            └─────────┘  │
+└──────────────────────┘        └──────────────────────────┘
+          ▲                               ▲
+          │     Semanas 01-02             │
+          │     Semanas 03-05             │
+          └───────────────────────────────┘</code></pre>
+        <p>Tudo que você aprendeu se conecta aqui!</p>
+      </section>
+
+      <section>
+        <h2>Pipeline Completo de Telemetria</h2>
+        <pre><code class="language-text">SENSORES
+  │
+  ▼
+FIRMWARE (FC — Arduino/PlatformIO)
+  │ coleta, formata, checksum
+  ▼
+LINK (LoRa / Serial USB)
+  │ transmissão
+  ▼
+GROUND STATION (Python)
+  │ parsing, validação, log
+  ▼
+ANÁLISE (Python + matplotlib)
+  │ gráficos, estatísticas
+  ▼
+VISUALIZAÇÃO (Dashboards, relatórios)
+  │
+  ▼
+TOMADA DE DECISÃO (próximo lançamento)</code></pre>
+      </section>
+
+      <section>
+        <h2>Oportunidades de Contribuição</h2>
+        <p>Áreas onde você pode contribuir:</p>
+        <ul>
+          <li><strong>Firmware:</strong> drivers de sensores, FSM, controle</li>
+          <li><strong>Python:</strong> pipeline de telemetria, dashboards em tempo real</li>
+          <li><strong>Hardware:</strong> design de PCB, montagem, testes</li>
+          <li><strong>LoRa:</strong> protocolo de comunicação, otimização de link</li>
+          <li><strong>CDB:</strong> definição de parâmetros e comandos</li>
+          <li><strong>Testes:</strong> validação de hardware, simulações</li>
+          <li><strong>Documentação:</strong> manuais, wiki, relatórios de voo</li>
+          <li><strong>SRAB:</strong> algoritmo de detecção de apogeu</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Como Começar a Contribuir</h2>
+        <ol>
+          <li>Escolha uma área de interesse</li>
+          <li>Leia o código existente no repositório</li>
+          <li>Pegue uma issue marcada como "good first issue"</li>
+          <li>Discuta no Discord antes de implementar</li>
+          <li>Abra um draft PR para feedback early</li>
+          <li>Itere com os revisores</li>
+        </ol>
+        <p class="objective">Não precisa saber tudo — a gente aprende junto.</p>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Mapear a FSM do Flight Computer (desenho ou texto)</li>
+          <li>Identificar 3 diferenças entre o FC e o Helike</li>
+          <li>Escolher uma área de contribuição e escrever plano</li>
+          <li>Simular uma transmissão LoRa (Python + rádio virtual)</li>
+          <li>Analisar um log de voo real (fornecido pelos mentores)</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>Flight Computer: MCU + sensores + FSM + telemetria</li>
+          <li>Helike PocketQube: satélite 1P com CDB e LoRa</li>
+          <li>SRAB: sistema de recuperação por paraquedas</li>
+          <li>Telemetria conecta firmware → rádio → solo → análise</li>
+          <li>Múltiplas oportunidades de contribuição real</li>
+        </ul>
+        <p>Você já tem as ferramentas para contribuir com projetos reais.</p>
+        <p class="subtitle">Próximo passo: Semana 08 — Capstone</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

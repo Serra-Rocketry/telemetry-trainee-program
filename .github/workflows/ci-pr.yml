@@ -1,0 +1,55 @@
+name: CI — Validação de PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  python:
+    name: Python lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pylint
+      - name: Check Python files
+        run: |
+          FILES=$(find . -name "*.py" -not -path "./.pio/*" -not -path "./venv/*" -not -path "./.opencode/*")
+          if [ -z "$FILES" ]; then
+            echo "Nenhum arquivo .py encontrado — pulando lint"
+            exit 0
+          fi
+          pylint --fail-under=7.0 $FILES
+
+  platformio:
+    name: PlatformIO build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install platformio
+      - name: Check platformio.ini
+        run: |
+          if [ ! -f platformio.ini ]; then
+            echo "Nenhum platformio.ini encontrado — pulando build"
+            exit 0
+          fi
+      - name: Build native tests
+        if: hashFiles('platformio.ini') != ''
+        run: |
+          pio test -e native
+
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"
+          ignore: ".github/** node_modules/** .pio/** venv/** .opencode/**"

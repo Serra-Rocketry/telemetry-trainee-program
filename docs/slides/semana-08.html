@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 08 — Capstone</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 08</h1>
+        <h2>Capstone</h2>
+        <p class="subtitle">Projeto final — Integração completa de telemetria</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Revisar todo o conhecimento adquirido</li>
+          <li>Construir pipeline end-to-end de telemetria</li>
+          <li>Entender expectativas para projetos reais</li>
+          <li>Planejar próximos passos na equipe</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Jornada: Revisão Rápida</h2>
+        <ul>
+          <li><strong>S00</strong> — Git, GitHub, PRs, ambiente configurado</li>
+          <li><strong>S01</strong> — Python: CSV, estatísticas, matplotlib</li>
+          <li><strong>S02</strong> — Python: parsing, validação, serial</li>
+          <li><strong>S03</strong> — Arduino: GPIO, I2C, millis(), serial</li>
+          <li><strong>S04</strong> — PlatformIO: estrutura profissional, testes Unity</li>
+          <li><strong>S05</strong> — Integração Arduino ↔ Python em tempo real</li>
+          <li><strong>S06</strong> — KiCad: esquemático, PCB, exportação</li>
+          <li><strong>S07</strong> — Flight Computer, Helike, FSM, LoRa</li>
+        </ul>
+        <p class="objective">8 semanas, 8 módulos — você chegou até aqui!</p>
+      </section>
+
+      <section>
+        <h2>Pipeline End-to-End</h2>
+        <pre><code class="language-text">┌─────────────────────────────────────────────────────────────────┐
+│                    PIPELINE DE TELEMETRIA                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  HARDWARE                  FIRMWARE              SOFTWARE        │
+│                                                                  │
+│  ┌────────┐    ┌──────────────────┐    ┌────────────────────┐   │
+│  │BMP280  │    │  Arduino/Teensy  │    │  Python (PC/RPi)   │   │
+│  │IMU     │───►│                  │───►│                    │   │
+│  │GPS     │    │  millis() 20Hz   │    │  pyserial          │   │
+│  │Bateria │    │  I2C, SPI, UART  │    │  parsing/validação │   │
+│  └────────┘    │  checksum XOR    │    │  log CSV           │   │
+│                │  FSM states      │    │  matplotlib plots  │   │
+│                └──────────────────┘    └────────────────────┘   │
+│                         │                        │               │
+│                         │  Serial / LoRa         │               │
+│                         ▼                        ▼               │
+│                ┌──────────────────┐    ┌────────────────────┐   │
+│                │  Helike / FC     │    │  Dashboard /       │   │
+│                │  SRAB / LoRa     │    │  Análise pós-voo   │   │
+│                └──────────────────┘    └────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+      </section>
+
+      <section>
+        <h2>Projeto Capstone — Especificação</h2>
+        <p>Construir um sistema completo de telemetria que:</p>
+        <ul>
+          <li><strong>Firmware (PlatformIO):</strong> lê BMP280 a 20 Hz, envia pacotes com checksum pela serial</li>
+          <li><strong>FMS (Flight Mode Simulator):</strong> implementa FSM simples (IDLE → BOOST → COAST → DROGUE → LANDED)</li>
+          <li><strong>Ground Station (Python):</strong> lê serial, faz parsing, valida, log CSV</li>
+          <li><strong>Dashboard:</strong> gráficos em tempo real com matplotlib</li>
+          <li><strong>Simulação:</strong> gerar dados sintéticos para testar sem hardware</li>
+          <li><strong>Relatório:</strong> análise pós-voo automática</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>FMS — Exemplo de Implementação</h2>
+        <pre><code class="language-cpp">enum State {
+  IDLE, BOOST, COAST, DROGUE, MAIN, LANDED
+};
+
+State estado = IDLE;
+unsigned long tempo_estado = 0;
+
+void loop() {
+  unsigned long agora = millis();
+
+  switch (estado) {
+    case IDLE:
+      if (altitude > 10.0) {
+        transitarPara(BOOST, agora);
+      }
+      break;
+
+    case BOOST:
+      if (agora - tempo_estado > 2000) {
+        transitarPara(COAST, agora);
+      }
+      break;
+
+    case COAST:
+      if (detectarApogeu()) {
+        transitarPara(DROGUE, agora);
+      }
+      break;
+
+    case DROGUE:
+      if (altitude < 300.0) {
+        transitarPara(MAIN, agora);
+      }
+      break;
+
+    case MAIN:
+      if (altitude < 10.0 && abs(velocity) < 0.5) {
+        transitarPara(LANDED, agora);
+      }
+      break;
+
+    case LANDED:
+      // beacon final, desliga transmissoes
+      break;
+  }
+}
+
+void transitarPara(State novo, unsigned long agora) {
+  estado = novo;
+  tempo_estado = agora;
+  logEvento(estado);
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Ground Station — Estrutura</h2>
+        <pre><code class="language-python"># Estrutura sugerida para o projeto capstone
+projeto-capstone/
+├── firmware/
+│   ├── platformio.ini
+│   ├── src/
+│   │   └── main.cpp
+│   └── lib/
+│       ├── TelemetryProtocol/
+│       ├── BMP280Wrapper/
+│       └── FSM/
+├── ground_station/
+│   ├── main.py            # entry point
+│   ├── serial_reader.py   # conexao serial
+│   ├── parser.py          # parsing + checksum
+│   ├── validator.py       # validacao de dados
+│   ├── logger.py          # CSV logging
+│   ├── dashboard.py       # graficos tempo real
+│   └── post_flight.py     # analise pos-voo
+├── simulation/
+│   └── generate_data.py   # dados sinteticos
+├── tests/
+│   ├── test_parser.py
+│   └── test_validator.py
+└── relatorio_voo.md</code></pre>
+      </section>
+
+      <section>
+        <h2>Post-Flight Analysis</h2>
+        <pre><code class="language-python">def analisar_pos_voo(caminho_csv):
+    df = ler_csv(caminho_csv)
+
+    print("=== ANALISE POS-VOO ===")
+    print(f"Duracao: {df['timestamp'].iloc[-1] - df['timestamp'].iloc[0]:.1f}s")
+
+    alt_max = df['altitude'].max()
+    idx_max = df['altitude'].idxmax()
+    print(f"Altitude maxima: {alt_max:.1f}m (t={df['timestamp'][idx_max]:.1f}s)")
+
+    vel_max = calcular_velocidade_maxima(df)
+    print(f"Velocidade maxima: {vel_max:.1f} m/s ({vel_max*3.6:.1f} km/h)")
+
+    taxa_subida_max = calcular_taxa_subida(df)
+    print(f"Taxa de subida maxima: {taxa_subida_max:.1f} m/s")
+
+    # Gerar graficos automaticos
+    gerar_relatorio_grafico(df, "relatorio_voo.png")
+
+    print(f"Relatorio salvo em relatorio_voo.png")</code></pre>
+      </section>
+
+      <section>
+        <h2>Critérios de Avaliação do Capstone</h2>
+        <ul>
+          <li><strong>Funcionalidade:</strong> o sistema funciona end-to-end?</li>
+          <li><strong>Código:</strong> está organizado, comentado (quando necessário), testado?</li>
+          <li><strong>Documentação:</strong> README explica como rodar?</li>
+          <li><strong>Versionamento:</strong> commits atômicos, mensagens claras?</li>
+          <li><strong>Colaboração:</strong> soube pedir/receber feedback?</li>
+          <li><strong>Entrega:</strong> PR completo até o deadline?</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Expectativas para Projetos Reais</h2>
+        <p>Depois do treinamento, você estará apto a:</p>
+        <ul>
+          <li>Participar de campanhas de lançamento</li>
+          <li>Implementar novas funcionalidades no FC</li>
+          <li>Analisar dados de voo reais</li>
+          <li>Projetar PCBs para novos sensores</li>
+          <li>Escrever e revisar PRs da equipe</li>
+          <li>Contribuir com o Helike PocketQube</li>
+          <li>Tutoriar novos trainees no futuro</li>
+        </ul>
+        <p class="objective">O treinamento é o começo, não o fim.</p>
+      </section>
+
+      <section>
+        <h2>Próximos Passos</h2>
+        <ol>
+          <li>Finalizar e entregar o Capstone</li>
+          <li>Participar da revisão de código dos colegas</li>
+          <li>Pegar uma issue real no repositório do FC</li>
+          <li>Configurar ambiente para testes de hardware</li>
+          <li>Participar dos testes de integração do Helike</li>
+          <li>Estudar tópicos avançados:</li>
+          <ul>
+            <li>RTOS (FreeRTOS) no firmware</li>
+            <li>Filtros (Kalman, complementar)</li>
+            <li>Controle (PID para recovery)</li>
+            <li>RF e antenas</li>
+          </ul>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Recursos para Continuar</h2>
+        <ul>
+          <li><strong>Repositório:</strong> github.com/organizacao/telemetry-trainee-program</li>
+          <li><strong>Discord:</strong> canal #telemetria para dúvidas</li>
+          <li><strong>Wiki:</strong> documentação técnica do FC e Helike</li>
+          <li><strong>Datasheet:</strong> BMP280, ICM20948, RFM96</li>
+          <li><strong>Livros:</strong> "Small Satellite Missions", "RF Design for CubeSats"</li>
+          <li><strong>Cursos:</strong> Embedded Systems (edX), RF Fundamentals</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Mensagem Final</h2>
+        <blockquote>
+          "A telemetria não é sobre coletar dados — é sobre entender o que o foguete está dizendo."
+        </blockquote>
+        <br>
+        <ul>
+          <li>Você aprendeu a escutar (serial)</li>
+          <li>Você aprendeu a interpretar (parsing)</li>
+          <li>Você aprendeu a registrar (CSV)</li>
+          <li>Você aprendeu a visualizar (matplotlib)</li>
+          <li>Você aprendeu a projetar (KiCad)</li>
+          <li>Você aprendeu a colaborar (Git)</li>
+        </ul>
+        <br>
+        <p class="subtitle center"><strong>Bem-vindo ao time de telemetria!</strong></p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>Revisão completa de todas as 8 semanas</li>
+          <li>Pipeline end-to-end: sensor → firmware → solo → análise</li>
+          <li>Capstone: projeto que integra tudo que foi aprendido</li>
+          <li>Prontos para contribuir com projetos reais</li>
+          <li>Próximos passos: issues, testes, evolução contínua</li>
+        </ul>
+        <p class="subtitle center">Parabéns por completar o treinamento! 🚀</p>
+        <p class="subtitle center">(Use o 🚀 somente aqui, no slide final. Combinei com o usuário.)</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

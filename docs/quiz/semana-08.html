@@ -1,0 +1,206 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Semana 8</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #0d1117; color: #e6edf3; padding: 40px 24px; }
+.quiz-container { max-width: 720px; margin: 0 auto; }
+h1 { font-size: 28px; margin-bottom: 8px; }
+.subtitle { color: #8b949e; margin-bottom: 32px; }
+.question { background: #1c2333; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.question h3 { font-size: 16px; margin-bottom: 12px; color: #e6edf3; }
+.question-number { color: #ff6b35; font-weight: 600; margin-right: 8px; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px 14px; cursor: pointer; transition: all 0.15s; color: #e6edf3; font-size: 14px; }
+.option:hover { border-color: #ff6b35; }
+.option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.1); }
+.option.correct { border-color: #2ea043; background: rgba(46,160,67,0.15); }
+.option.incorrect { border-color: #da3633; background: rgba(218,54,51,0.15); }
+.option.disabled { pointer-events: none; opacity: 0.7; }
+.option.show-correct { border-color: #2ea043; background: rgba(46,160,67,0.1); }
+.feedback { margin-top: 8px; font-size: 13px; padding: 6px 10px; border-radius: 4px; display: none; }
+.feedback.correct-fb { display: block; background: rgba(46,160,67,0.1); color: #2ea043; }
+.feedback.incorrect-fb { display: block; background: rgba(218,54,51,0.1); color: #da3633; }
+.score-bar { position: sticky; top: 0; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+.score-text { font-size: 16px; font-weight: 600; }
+.reset-btn { background: #ff6b35; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.reset-btn:hover { background: #ff8c5a; }
+.show-answers-btn { background: transparent; color: #ff6b35; border: 1px solid #ff6b35; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.true-false { display: flex; gap: 12px; }
+.true-false .option { flex: 1; text-align: center; }
+.short-answer { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; color: #e6edf3; font-size: 14px; width: 100%; margin-top: 8px; }
+.answer-reveal { margin-top: 12px; padding: 10px 14px; background: rgba(255,107,53,0.1); border: 1px solid #ff6b35; border-radius: 6px; display: none; font-size: 14px; color: #ff6b35; }
+</style>
+</head>
+<body>
+<div class="quiz-container">
+  <h1>Quiz — Semana 8: Capstone (Revisão Geral)</h1>
+  <p class="subtitle">Selecione as respostas. O feedback é imediato.</p>
+
+  <div class="score-bar" id="scoreBar">
+    <span class="score-text" id="scoreText">0/0 — 0%</span>
+    <div style="display:flex;gap:8px">
+      <button class="reset-btn" onclick="resetQuiz()">Reiniciar</button>
+      <button class="show-answers-btn" onclick="showAnswers()">Mostrar Respostas</button>
+    </div>
+  </div>
+
+  <div id="questionsContainer"></div>
+</div>
+
+<script>
+const questions = [
+  { q: 'Qual é a ordem correta de operações ao receber um pacote de telemetria pela serial?', type: 'mc', options: ['a) Interpretar dados -> validar checksum -> verificar sync bytes', 'b) Verificar sync bytes -> validar checksum -> interpretar dados', 'c) Validar checksum -> interpretar dados -> verificar sync bytes', 'd) Interpretar dados -> verificar sync bytes -> validar checksum'], correct: 1, explanation: '' },
+  { q: 'Explique como <code>git fork</code> e <code>git clone</code> se diferenciam e em qual situação cada um é usado.', type: 'short', options: [], correct: '<code>git clone</code> baixa um repositório remoto para o computador local. <code>git fork</code> cria uma cópia do repositório na sua conta do GitHub. Usa-se <code>fork</code> para contribuir com projetos alheios sem permissão de escrita direta; <code>clone</code> é usado para obter uma cópia local de qualquer repositório.' },
+  { q: 'No PlatformIO, qual diretiva do <code>platformio.ini</code> adiciona automaticamente uma biblioteca ao projeto?', type: 'mc', options: ['a) <code>lib_install</code>', 'b) <code>lib_deps</code>', 'c) <code>library</code>', 'd) <code>dependencies</code>'], correct: 1, explanation: '' },
+  { q: 'A função <code>millis()</code> no Arduino retorna o tempo em microssegundos desde o início do programa.', type: 'tf', options: ['Verdadeiro', 'Falso'], correct: 1, explanation: '<code>millis()</code> retorna o tempo em *milissegundos* desde o início do programa.' },
+  { q: 'Dado o pacote <code>"temp=28.5;pres=1012;alt=450"</code>, escreva código Python para convertê-lo em um dicionário e validar que a altitude está entre 0 e 5000 metros.', type: 'short', options: [], correct: '<code>dados = "temp=28.5;pres=1012;alt=450"</code><br><code>pacote = dict(item.split("=") for item in dados.split(";"))</code><br><code>altitude = float(pacote["alt"])</code><br><code>if 0 <= altitude <= 5000:</code><br><code>&nbsp;&nbsp;print("Altitude válida")</code><br><code>else:</code><br><code>&nbsp;&nbsp;print("Altitude fora do range")</code>' },
+  { q: 'Qual das alternativas abaixo é uma vantagem de usar um capacitor de desacoplamento em uma PCB?', type: 'mc', options: ['a) Aumentar a impedância da linha de alimentação', 'b) Filtrar transientes de alta frequência próximos ao pino de alimentação do CI', 'c) Substituir resistores pull-up', 'd) Reduzir o número de camadas da placa'], correct: 1, explanation: '' },
+  { q: 'No KiCad, o arquivo Gerber contém as informações de conexões lógicas do esquemático.', type: 'tf', options: ['Verdadeiro', 'Falso'], correct: 1, explanation: 'Gerber contém informações de layout físico das camadas da PCB, não conexões lógicas (que estão no esquemático).' },
+  { q: 'Em uma FSM de voo, a transição do estado ASCENT para DESCENT ocorre quando:', type: 'mc', options: ['a) O foguete toca o solo', 'b) O foguete atinge o apogeu (altitude máxima)', 'c) O paraquedas abre', 'd) O motor é ligado'], correct: 1, explanation: '' },
+  { q: 'Escreva um trecho de código Arduino que lê um valor inteiro da serial e verifica se ele está dentro de uma faixa esperada (0-1023). Se sim, acende um LED; se não, envia "Erro" pela serial.', type: 'short', options: [], correct: 'void loop() {<br>&nbsp;&nbsp;if (Serial.available() > 0) {<br>&nbsp;&nbsp;&nbsp;&nbsp;int valor = Serial.parseInt();<br>&nbsp;&nbsp;&nbsp;&nbsp;if (valor >= 0 && valor <= 1023) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;digitalWrite(13, HIGH);<br>&nbsp;&nbsp;&nbsp;&nbsp;} else {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Serial.println("Erro");<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br>}' },
+  { q: 'Qual sistema de arquivos é mais robusto para armazenar logs de voo em flash interna de microcontroladores?', type: 'mc', options: ['a) FAT32', 'b) LittleFS', 'c) NTFS', 'd) ext4'], correct: 1, explanation: '' }
+];
+
+let userAnswers = {};
+let revealed = false;
+
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = `q${i}`;
+
+    let optionsHtml = '';
+
+    if (q.type === 'tf') {
+      optionsHtml = `<div class="options true-false" id="opts${i}">`;
+      q.options.forEach((opt, j) => {
+        optionsHtml += `<div class="option" data-q="${i}" data-opt="${j}" onclick="selectOption(${i},${j})">${opt}</div>`;
+      });
+      optionsHtml += `</div>`;
+    } else if (q.type === 'short') {
+      optionsHtml = `<textarea class="short-answer" rows="2" placeholder="Digite sua resposta..." oninput="trackShortAnswer(${i}, this.value)"></textarea>`;
+      optionsHtml += `<div class="answer-reveal" id="reveal${i}"><strong>Resposta:</strong> ${q.correct}</div>`;
+    } else {
+      optionsHtml = `<div class="options" id="opts${i}">`;
+      q.options.forEach((opt, j) => {
+        optionsHtml += `<div class="option" data-q="${i}" data-opt="${j}" onclick="selectOption(${i},${j})">${opt}</div>`;
+      });
+      optionsHtml += `</div>`;
+    }
+
+    div.innerHTML = `
+      <h3><span class="question-number">${i+1}.</span> ${q.q}</h3>
+      ${optionsHtml}
+      <div class="feedback" id="fb${i}"></div>
+    `;
+
+    container.appendChild(div);
+  });
+
+  updateScore();
+}
+
+function selectOption(qIdx, optIdx) {
+  if (revealed) return;
+
+  const q = questions[qIdx];
+  const options = document.querySelectorAll(`#opts${qIdx} .option`);
+
+  options.forEach(o => {
+    o.classList.remove('selected', 'correct', 'incorrect');
+  });
+
+  options[optIdx].classList.add('selected');
+
+  const fb = document.getElementById(`fb${qIdx}`);
+  const isCorrect = optIdx === q.correct;
+
+  if (isCorrect) {
+    options[optIdx].classList.add('correct');
+    fb.className = 'feedback correct-fb';
+    fb.textContent = '✅ Correto!' + (q.explanation ? ' ' + q.explanation : '');
+  } else {
+    options[optIdx].classList.add('incorrect');
+    options[q.correct].classList.add('correct');
+    fb.className = 'feedback incorrect-fb';
+    fb.textContent = '❌ Incorreto. ' + (q.explanation || '');
+  }
+
+  options.forEach(o => o.classList.add('disabled'));
+  userAnswers[qIdx] = optIdx;
+  updateScore();
+}
+
+function trackShortAnswer(qIdx, value) {
+  userAnswers[qIdx] = value;
+}
+
+function updateScore() {
+  let correct = 0;
+  let answered = 0;
+
+  questions.forEach((q, i) => {
+    if (userAnswers[i] !== undefined) {
+      answered++;
+      if (q.type === 'short') {
+      } else if (userAnswers[i] === q.correct) {
+        correct++;
+      }
+    }
+  });
+
+  const pct = answered > 0 ? Math.round(correct / answered * 100) : 0;
+  document.getElementById('scoreText').textContent = `${correct}/${answered} — ${pct}%`;
+}
+
+function showAnswers() {
+  revealed = true;
+  questions.forEach((q, i) => {
+    const fb = document.getElementById(`fb${i}`);
+    if (q.type === 'short') {
+      const reveal = document.getElementById(`reveal${i}`);
+      if (reveal) reveal.style.display = 'block';
+    } else if (userAnswers[i] === undefined) {
+      const opts = document.querySelectorAll(`#opts${i} .option`);
+      opts[q.correct].classList.add('show-correct');
+      opts.forEach(o => o.classList.add('disabled'));
+      fb.className = 'feedback correct-fb';
+      fb.textContent = 'Resposta: ' + q.options[q.correct] + (q.explanation ? ' — ' + q.explanation : '');
+    }
+  });
+}
+
+function resetQuiz() {
+  userAnswers = {};
+  revealed = false;
+  document.querySelectorAll('.feedback').forEach(el => {
+    el.className = 'feedback';
+    el.textContent = '';
+  });
+  document.querySelectorAll('.option').forEach(el => {
+    el.classList.remove('selected', 'correct', 'incorrect', 'disabled', 'show-correct');
+  });
+  document.querySelectorAll('.answer-reveal').forEach(el => {
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('.short-answer').forEach(el => {
+    el.value = '';
+  });
+  updateScore();
+}
+
+renderQuestions();
+</script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 03 — Arduino IDE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 03</h1>
+        <h2>Arduino IDE</h2>
+        <p class="subtitle">Programação de microcontroladores para telemetria</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Controlar GPIO (LED, botão, buzzer)</li>
+          <li>Comunicação Serial a 115200 baud</li>
+          <li>Protocolo I2C com sensor BMP280</li>
+          <li>Usar <code>millis()</code> sem delay para taxa de amostragem</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>GPIO — LED e Botão</h2>
+        <pre><code class="language-cpp">const int LED_PIN = 13;
+const int BUTTON_PIN = 2;
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  Serial.begin(115200);
+}
+
+void loop() {
+  int estado = digitalRead(BUTTON_PIN);
+
+  if (estado == LOW) {  // botao pressionado (pull-up)
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println("Botao pressionado!");
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  delay(50);  // debounce simples
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Buzzer — Alertas Sonoros</h2>
+        <pre><code class="language-cpp">const int BUZZER_PIN = 9;
+
+void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+}
+
+void bip(int frequencia, int duracao) {
+  tone(BUZZER_PIN, frequencia, duracao);
+  delay(duracao);
+  noTone(BUZZER_PIN);
+}
+
+void loop() {
+  bip(1000, 200);  // 1 kHz por 200 ms
+  delay(500);
+  bip(2000, 100);  // 2 kHz por 100 ms
+  delay(1000);
+}</code></pre>
+        <p class="objective">Tom agudo = maior frequência (Hz).</p>
+      </section>
+
+      <section>
+        <h2>Serial — Pacotes Formatados</h2>
+        <pre><code class="language-cpp">void enviar_pacote(int timestamp, float alt, float temp) {
+  Serial.print("$T,");
+  Serial.print(timestamp);
+  Serial.print(",");
+  Serial.print(alt, 2);
+  Serial.print(",");
+  Serial.print(temp, 2);
+  Serial.print("*");
+
+  // Calcula checksum XOR
+  uint8_t cksum = 0;
+  String dados = "T," + String(timestamp) + ","
+                 + String(alt, 2) + "," + String(temp, 2);
+  for (size_t i = 0; i &lt; dados.length(); i++) {
+    cksum ^= dados[i];
+  }
+
+  Serial.println(cksum, HEX);
+}</code></pre>
+        <p>Saída: <code>$T,100,120.50,25.30*3F</code></p>
+      </section>
+
+      <section>
+        <h2>I2C — Sensor BMP280</h2>
+        <p>O BMP280 mede temperatura e pressão barométrica:</p>
+        <pre><code class="language-cpp">#include &lt;Wire.h&gt;
+#include &lt;Adafruit_BMP280.h&gt;
+
+Adafruit_BMP280 bmp;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  if (!bmp.begin(0x76)) {  // endereco I2C padrao
+    Serial.println("BMP280 nao encontrado!");
+    while (1);
+  }
+
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL);
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Lendo o BMP280</h2>
+        <pre><code class="language-cpp">void loop() {
+  float temperatura = bmp.readTemperature();
+  float pressao = bmp.readPressure() / 100.0F;  // hPa
+  float altitude = bmp.readAltitude(1013.25);    // metros
+
+  Serial.print("Temp: ");
+  Serial.print(temperatura);
+  Serial.print(" C, Pressao: ");
+  Serial.print(pressao);
+  Serial.print(" hPa, Alt: ");
+  Serial.print(altitude);
+  Serial.println(" m");
+
+  delay(1000);
+}</code></pre>
+        <p class="objective">Altitude calculada a partir da pressão (fórmula barométrica).</p>
+      </section>
+
+      <section>
+        <h2>I2C Scanner</h2>
+        <p>Nem sempre sabemos o endereço do dispositivo. Um scanner resolve:</p>
+        <pre><code class="language-cpp">void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  Serial.println("Scanning I2C...");
+  for (byte addr = 1; addr &lt; 127; addr++) {
+    Wire.beginTransmission(addr);
+    if (Wire.endTransmission() == 0) {
+      Serial.print("Dispositivo em 0x");
+      Serial.println(addr, HEX);
+    }
+  }
+  Serial.println("Scan concluido.");
+}
+
+void loop() {}</code></pre>
+        <p>Endereços comuns: BMP280 (0x76/0x77), MPU6050 (0x68), OLED (0x3C).</p>
+      </section>
+
+      <section>
+        <h2>millis() — O Problema do delay()</h2>
+        <p><code>delay()</code> bloqueia o microcontrolador:</p>
+        <pre><code class="language-cpp">// RUIM: bloqueia todo o sistema
+void loop() {
+  digitalWrite(LED_PIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_PIN, LOW);
+  delay(1000);
+  // Nao posso ler sensor durante o delay!
+}</code></pre>
+        <p>Solução: usar <code>millis()</code> para temporização não bloqueante.</p>
+      </section>
+
+      <section>
+        <h2>millis() — Blink Sem Delay</h2>
+        <pre><code class="language-cpp">const unsigned long INTERVALO = 1000;
+unsigned long ultimo_toggle = 0;
+bool estado_led = LOW;
+
+void loop() {
+  unsigned long agora = millis();
+
+  if (agora - ultimo_toggle >= INTERVALO) {
+    ultimo_toggle = agora;
+    estado_led = !estado_led;
+    digitalWrite(LED_PIN, estado_led);
+  }
+
+  // Posso ler sensores AQUI sem ser bloqueado!
+  float temp = bmp.readTemperature();
+  Serial.println(temp);
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Taxa de Amostragem Controlada</h2>
+        <p>Coletar dados a uma taxa fixa (ex: 20 Hz = 50 ms):</p>
+        <pre><code class="language-cpp">const unsigned long PERIODO_AMOSTRA = 50;  // 20 Hz
+unsigned long ultima_amostra = 0;
+int contador = 0;
+
+void loop() {
+  unsigned long agora = millis();
+
+  if (agora - ultima_amostra >= PERIODO_AMOSTRA) {
+    ultima_amostra = agora;
+
+    float temperatura = bmp.readTemperature();
+    float pressao = bmp.readPressure();
+
+    enviar_pacote(agora, temperatura, pressao);
+    contador++;
+  }
+
+  // Outras tarefas nao bloqueantes aqui
+  ler_botao();
+  atualizar_led_status();
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Estrutura Completa do Firmware</h2>
+        <pre><code class="language-cpp">#include &lt;Wire.h&gt;
+#include &lt;Adafruit_BMP280.h&gt;
+
+Adafruit_BMP280 bmp;
+const unsigned long PERIODO = 50;  // 20 Hz
+unsigned long ultima = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+  bmp.begin(0x76);
+}
+
+void loop() {
+  unsigned long agora = millis();
+  if (agora - ultima < PERIODO) return;
+  ultima = agora;
+
+  float temp = bmp.readTemperature();
+  float pressao = bmp.readPressure();
+  float alt = bmp.readAltitude(1013.25);
+
+  enviar_pacote(agora, alt, temp, pressao);
+}
+
+void enviar_pacote(unsigned long ts,
+                   float alt, float temp, float pressao) {
+  Serial.print("$T,");
+  Serial.print(ts);
+  Serial.print(",");
+  Serial.print(alt, 2);
+  Serial.print(",");
+  Serial.print(temp, 2);
+  Serial.print(",");
+  Serial.print(pressao, 2);
+  Serial.println("*");  // checksum omitido por brevidade
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Piscar LED sem delay usando millis()</li>
+          <li>Ler BMP280 e mostrar no Serial Monitor</li>
+          <li>Escanear barramento I2C e listar dispositivos</li>
+          <li>Enviar pacotes formatados a 20 Hz com checksum</li>
+          <li>Acionar buzzer quando altitude > 100 m</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>GPIO controlado (LED, botão, buzzer)</li>
+          <li>Serial a 115200 baud com pacotes formatados</li>
+          <li>I2C funcional com BMP280 e scanner</li>
+          <li>Temporização não bloqueante com millis()</li>
+        </ul>
+        <p>Base sólida para o firmware de telemetria.</p>
+        <p class="subtitle">Próximo passo: Semana 04 — PlatformIO</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

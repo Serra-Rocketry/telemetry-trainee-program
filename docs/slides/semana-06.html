@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 06 — KiCad Básico</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 06</h1>
+        <h2>KiCad Básico</h2>
+        <p class="subtitle">Design de PCB para telemetria</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Entender o fluxo de trabalho do KiCad (Eeschema → Pcbnew)</li>
+          <li>Criar esquemático de MCU + sensor BMP280</li>
+          <li>Executar ERC (Electrical Rules Check)</li>
+          <li>Layout básico de PCB</li>
+          <li>Exportar PDF e Gerber para fabricação</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Visão Geral do KiCad</h2>
+        <p>KiCad é um suite EDA open-source com 5 ferramentas principais:</p>
+        <ul>
+          <li><strong>Eeschema</strong> — editor de esquemáticos</li>
+          <li><strong>Pcbnew</strong> — editor de PCB layout</li>
+          <li><strong>Symbol Editor</strong> — criar/editar símbolos</li>
+          <li><strong>Footprint Editor</strong> — criar/editar footprints</li>
+          <li><strong>GerbView</strong> — visualizar Gerbers</li>
+        </ul>
+        <p>Fluxo: Esquemático → Anotação → Associação de footprints → PCB → Gerber</p>
+      </section>
+
+      <section>
+        <h2>Criando um Projeto</h2>
+        <pre><code class="language-text">projeto-telemetria/
+├── telemetria.kicad_pro    # Arquivo de projeto
+├── telemetria.kicad_sch    # Esquematico
+├── telemetria.kicad_pcb    # PCB Layout
+├── symbols/                # Simbolos personalizados
+├── footprints/             # Footprints personalizados
+└── fabrication/            # Saida Gerber/PDF</code></pre>
+        <p>No KiCad: File → New → Project → escolher pasta.</p>
+      </section>
+
+      <section>
+        <h2>Eeschema — Esquemático MCU + Sensor</h2>
+        <p>Componentes principais de um nó de telemetria:</p>
+        <ul>
+          <li>Microcontrolador (ATmega328P, RP2040, STM32)</li>
+          <li>Sensor BMP280 (I2C)</li>
+          <li>Conector USB (alimentação + dados)</li>
+          <li>Regulador de tensão 3.3V</li>
+          <li>Capacitores de desacoplamento</li>
+          <li>Resistores de pull-up I2C</li>
+          <li>Conector para bateria LiPo</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Adicionando Componentes</h2>
+        <pre><code class="language-text">Tecla de atalho: 'A' (Add Symbol)
+
+Buscar e colocar:
+- ATmega328P_PDIP        (MCU)
+- BMP280                  (sensor pressao)
+- USB_B_Micro             (conector USB)
+- LM1117-3.3              (regulador)
+- C_Small (100nF, 10uF)  (capacitores)
+- R_Small (4k7)          (pull-ups I2C)
+- CONN_01x02              (bateria)</code></pre>
+        <p>Use fios (wire) para conectar os pinos.</p>
+      </section>
+
+      <section>
+        <h2>Exemplo de Conexões I2C</h2>
+        <pre><code class="language-text">                       3.3V
+                        │
+                    ┌───┤
+                    │   │
+                  4k7  4k7
+                    │   │
+                    │   └──────────┐
+                    │              │
+  MCU               │              │     BMP280
+┌──────┐          ┌─┴─┐         ┌─┴──┐
+│ SDA  │──────────┤   ├─────────┤ SDA│
+│ SCL  │──────────┤   ├─────────┤ SCL│
+│ VCC  │───3.3V   │   │         │ VCC│───3.3V
+│ GND  │───GND    │   │         │ GND│───GND
+└──────┘          └───┘         └────┘</code></pre>
+        <p>I2C precisa de pull-ups (4k7) para SDA e SCL.</p>
+      </section>
+
+      <section>
+        <h2>ERC — Electrical Rules Check</h2>
+        <p>Antes de passar para PCB, verifique o esquemático:</p>
+        <ul>
+          <li>Menu: Inspect → Electrical Rules Check</li>
+          <li>Verifica conexões soltas, pinos não conectados, conflitos</li>
+          <li>Corrija todos os erros (bandeiras vermelhas)</li>
+          <li>Avisos (amarelos) podem ser aceitos se justificados</li>
+        </ul>
+        <pre><code class="language-text">Exemplo de erros comuns:
+- Erro: Pino VCC do BMP280 nao conectado
+- Erro: Saida SDA em curto com GND
+- Aviso: Resistores de pull-up ausentes no I2C</code></pre>
+        <p class="objective">ERC zero erros antes de ir para o layout!</p>
+      </section>
+
+      <section>
+        <h2>Associando Footprints</h2>
+        <p>Cada símbolo precisa de um footprint (forma física no PCB):</p>
+        <pre><code class="language-text">Menu: Tools → Assign Footprints
+
+Exemplos:
+- ATmega328P → DIP-28_W7.62mm
+- BMP280 → LGA-8_2x2.5mm_P0.65mm
+- 100nF → C_0805
+- 4k7 → R_0805
+- USB → USB_Micro-B_GCT
+- Regulador → SOT-223</code></pre>
+        <p>Use o filtro de busca para encontrar o footprint correto.</p>
+      </section>
+
+      <section>
+        <h2>Pcbnew — Layout Básico</h2>
+        <p>Princípios de um bom layout:</p>
+        <ul>
+          <li>Capacitores de desacoplamento o mais próximo possível do pino VCC</li>
+          <li>Planos de GND contínuos (evitar rasgos)</li>
+          <li>I2C tracks curtas e paralelas (SDA + SCL)</li>
+          <li>Separar parte analógica da digital</li>
+          <li>Evitar ângulos de 90 nos traces (usar 45)</li>
+          <li>Largura do trace: sinal 0.25mm, power 0.5mm+</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Roteamento Básico</h2>
+        <pre><code class="language-text">Teclas uteis no Pcbnew:
+'X' — iniciar roteamento (add track)
+'V' — via
+'R' — rotacionar componente
+'F' — flip para lado oposto
+'M' — mover
+'Delete' — remover track
+
+Camadas tipicas:
+F.Cu (Top) — componentes e sinais
+B.Cu (Bottom) — GND plane (ou sinais)
+Edge.Cuts — contorno da placa</code></pre>
+      </section>
+
+      <section>
+        <h2>Plano de GND e Power</h2>
+        <p>Use zonas de cobre para alimentação e GND:</p>
+        <pre><code class="language-text">1. Selecione a camada B.Cu
+2. Menu: Place → Zone (ou 'Ctrl+Z')
+3. Clique no contorno da placa
+4. Net: GND
+5. Preferencias: Thermal relief = none
+6. Clique em 'Fill All Zones' (B)
+
+Repita para 3.3V na camada F.Cu (se houver espaço)</code></pre>
+        <p>Zonas de GND reduzem ruído e melhoram a integridade do sinal.</p>
+      </section>
+
+      <section>
+        <h2>DRC — Design Rules Check</h2>
+        <p>Verifica se o layout respeita as regras de fabricação:</p>
+        <pre><code class="language-text">Menu: Inspect → Design Rules Check
+
+Regras comuns (default):
+- Clearance: 0.25mm (min entre trilhas)
+- Track width: 0.25mm (min)
+- Via size: 0.6mm (min)
+- Via drill: 0.3mm (min)
+- Anular ring: 0.15mm (min)
+
+Ajuste em: File → Board Setup → Design Rules</code></pre>
+        <p>DRC zero erros antes de exportar!</p>
+      </section>
+
+      <section>
+        <h2>Exportação — PDF e Gerber</h2>
+        <p><strong>PDF do esquemático:</strong></p>
+        <pre><code class="language-text">Eeschema → File → Plot → Formato PDF → Plotar</code></pre>
+        <p><strong>Gerber (fabricação):</strong></p>
+        <pre><code class="language-text">Pcbnew → File → Fabrication → Gerbers
+
+Camadas necessarias:
+- F.Cu, B.Cu (cobre)
+- F.Mask, B.Mask (mascara solda)
+- F.Silkscreen, B.Silkscreen (serigrafia)
+- Edge.Cuts (contorno)
+- Drill (.drl file)</code></pre>
+        <p>Envie o .zip dos Gerbers para JLCPCB, PCBWay, etc.</p>
+      </section>
+
+      <section>
+        <h2>Exemplo: Placa de Telemetria</h2>
+        <pre><code class="language-text">┌──────────────────────────────────────┐
+│  ┌────────────────────────────────┐   │
+│  │   [ANTENA]    [USB]            │   │
+│  │   ┌──────┐                    │   │
+│  │   │ MCU  │──┐                 │   │
+│  │   │      │  ├── I2C ── BMP280 │   │
+│  │   │      │  │                 │   │
+│  │   │      │  ├── UART ── LoRa  │   │
+│  │   └──────┘  │                 │   │
+│  │              └── SPI  ── SD   │   │
+│  │  [REG 3.3V]    [BATERIA]      │   │
+│  └────────────────────────────────┘   │
+│          [4 parafusos M3]             │
+└──────────────────────────────────────┘</code></pre>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Criar projeto KiCad e esquemático MCU + BMP280</li>
+          <li>Adicionar capacitores de desacoplamento e pull-ups I2C</li>
+          <li>Executar ERC e corrigir todos os erros</li>
+          <li>Layout PCB com roteamento básico e plano de GND</li>
+          <li>Executar DRC e exportar PDF + Gerber</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>Fluxo KiCad: esquemático → footprints → PCB → Gerber</li>
+          <li>Esquemático MCU + sensor BMP280 criado</li>
+          <li>ERC e regras de design compreendidas</li>
+          <li>Layout PCB com boas práticas de roteamento</li>
+          <li>Exportação PDF (docs) e Gerber (fabricação)</li>
+        </ul>
+        <p>KiCad é essencial para projetar hardware de telemetria.</p>
+        <p class="subtitle">Próximo passo: Semana 07 — Flight Computer & Helike</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 00 — Onboarding & GitHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 00</h1>
+        <h2>Onboarding & GitHub</h2>
+        <p class="subtitle">Telemetry Trainee Program — Rocketry</p>
+        <p class="subtitle">Torne-se um colaborador ativo do time de telemetria</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Configurar o ambiente de desenvolvimento completo</li>
+          <li>Dominar o fluxo básico do Git (clone, branch, commit, push)</li>
+          <li>Abrir seu primeiro Pull Request</li>
+          <li>Entender a estrutura e o fluxo do treinamento</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Setup do Ambiente</h2>
+        <h3>Ferramentas Essenciais</h3>
+        <ul>
+          <li><strong>VSCode</strong> — editor principal com extensões:</li>
+          <ul>
+            <li>Python, Pylance, Jupyter</li>
+            <li>Arduino, PlatformIO IDE</li>
+            <li>GitLens, GitHub Pull Requests</li>
+          </ul>
+          <li><strong>Python 3.10+</strong> — análise de dados</li>
+          <li><strong>Arduino IDE</strong> — firmware embarcado</li>
+          <li><strong>PlatformIO</strong> — build system profissional</li>
+          <li><strong>KiCad 7+</strong> — design de PCB</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Verificando a Instalação</h2>
+        <p>Abra o terminal e confirme cada ferramenta:</p>
+        <pre><code class="language-bash"># Python
+python3 --version     # >= 3.10
+
+# Git
+git --version         # >= 2.30
+
+# PlatformIO (via VSCode ou CLI)
+pio --version
+
+# KiCad
+kicad --version       # 7.x ou 8.x
+
+# VSCode
+code --version</code></pre>
+        <p class="objective">Todas devem retornar versões sem erro.</p>
+      </section>
+
+      <section>
+        <h2>Git — Primeiros Passos</h2>
+        <p>Configure seu nome e email (globais):</p>
+        <pre><code class="language-bash">git config --global user.name "Seu Nome"
+git config --global user.email "seu@email.com"</code></pre>
+        <p>Clone o repositório do treinamento:</p>
+        <pre><code class="language-bash">git clone https://github.com/organizacao/telemetry-trainee-program.git
+cd telemetry-trainee-program</code></pre>
+      </section>
+
+      <section>
+        <h2>Criando sua Branch</h2>
+        <p>Cada trainee trabalha na própria branch:</p>
+        <pre><code class="language-bash"># Criar e mudar para a branch
+git checkout -b seu-nome-sobrenome
+
+# Verificar branches existentes
+git branch
+
+# Verificar status
+git status</code></pre>
+        <p class="objective">Nunca commitar na branch <code>main</code> ou <code>master</code>.</p>
+      </section>
+
+      <section>
+        <h2>Commit — O Ciclo Básico</h2>
+        <pre><code class="language-bash"># Ver o que mudou
+git status
+git diff
+
+# Adicionar arquivos ao stage
+git add arquivo.py
+git add .               # todos os arquivos
+
+# Criar o commit
+git commit -m "semana-00: adiciona script hello world"
+
+# Enviar para o GitHub
+git push -u origin seu-nome-sobrenome</code></pre>
+        <p>Commits devem ser <strong>atômicos</strong> e com mensagens descritivas.</p>
+      </section>
+
+      <section>
+        <h2>Pull Request "Hello World"</h2>
+        <p>Objetivo: criar um arquivo <code>hello.py</code> na sua branch e abrir um PR.</p>
+        <pre><code class="language-python"># hello.py
+def main():
+    print("Hello from telemetry trainee!")
+
+if __name__ == "__main__":
+    main()</code></pre>
+        <ol>
+          <li>Commit e push do arquivo</li>
+          <li>Ir ao GitHub.com → abrir PR da sua branch para <code>main</code></li>
+          <li>Título: <em>"Semana 00 — Nome Sobrenome"</em></li>
+          <li>Adicionar revisores (mentores)</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Estrutura do PR Ideal</h2>
+        <p>Um bom PR contém:</p>
+        <ul>
+          <li>Título claro e descritivo</li>
+          <li>Descrição do que foi feito e por quê</li>
+          <li>Prints/telas se aplicável</li>
+          <li>Checklist de verificação</li>
+        </ul>
+        <pre><code class="language-markdown">## Descrição
+Adiciona script inicial hello.py conforme requisito da Semana 00.
+
+## Checklist
+- [x] Código testado localmente
+- [x] Segue as convenções do repositório
+- [ ] Adicionados testes (quando aplicável)</code></pre>
+      </section>
+
+      <section>
+        <h2>Revisão de Código (Code Review)</h2>
+        <p>Parte fundamental do processo:</p>
+        <ul>
+          <li>Mentores revisam seu código e deixam comentários</li>
+          <li>Você responde e ajusta conforme necessário</li>
+          <li>Múltiplos ciclos de review até aprovação</li>
+          <li>Depois de aprovado: <strong>squash & merge</strong></li>
+        </ul>
+        <p class="objective">Não levar críticas como pessoais — revisão é sobre o código, não sobre você.</p>
+      </section>
+
+      <section>
+        <h2>Fluxo do Treinamento</h2>
+        <p>8 semanas, 8 módulos:</p>
+        <ul>
+          <li><strong>S00</strong> — Onboarding & GitHub</li>
+          <li><strong>S01</strong> — Python básico (CSV, matplotlib)</li>
+          <li><strong>S02</strong> — Python aplicado (parsing, validação)</li>
+          <li><strong>S03</strong> — Arduino IDE (GPIO, I2C, Serial)</li>
+          <li><strong>S04</strong> — PlatformIO (estrutura profissional, testes)</li>
+          <li><strong>S05</strong> — Integração Arduino ↔ Python</li>
+          <li><strong>S06</strong> — KiCad básico (esquemático, PCB)</li>
+          <li><strong>S07</strong> — Flight Computer & Helike</li>
+          <li><strong>S08</strong> — Capstone (projeto final)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Dinâmica Semanal</h2>
+        <ul>
+          <li><strong>Terça:</strong> Disponibilização do material</li>
+          <li><strong>Quarta a Sexta:</strong> Estudo individual + exercícios</li>
+          <li><strong>Sábado:</strong> Sessão síncrona (tirar dúvidas)</li>
+          <li><strong>Domingo:</strong> Deadline para entrega</li>
+          <li><strong>Segunda:</strong> Code review pelos mentores</li>
+        </ul>
+        <p>Entregas são feitas via PR no repositório do treinamento.</p>
+      </section>
+
+      <section>
+        <h2>Critérios de Avaliação</h2>
+        <ul>
+          <li>Completude dos exercícios propostos</li>
+          <li>Qualidade do código (organização, boas práticas)</li>
+          <li>Participação nas sessões e discussões</li>
+          <li>Evolução técnica entre as semanas</li>
+          <li>Colaboração com outros trainees</li>
+        </ul>
+        <p class="objective">O objetivo não é "terminar", é <strong>aprender</strong>.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>Ambiente configurado e verificado</li>
+          <li>Fluxo Git: clone → branch → commit → push → PR</li>
+          <li>Primeiro PR "hello world" criado</li>
+          <li>Estrutura do treinamento compreendida</li>
+        </ul>
+        <p class="subtitle">Próximo passo: Semana 01 — Python básico</p>
+        <p class="subtitle center">Dúvidas? Pergunte no Discord!</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

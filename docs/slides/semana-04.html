@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 04 — PlatformIO</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 04</h1>
+        <h2>PlatformIO</h2>
+        <p class="subtitle">Build system profissional para firmware embarcado</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Entender por que PlatformIO é superior ao Arduino IDE</li>
+          <li>Estruturar projeto com src/, lib/, test/</li>
+          <li>Configurar platformio.ini multi-ambiente</li>
+          <li>Gerenciar dependências com lib_deps</li>
+          <li>Escrever e rodar testes nativos com Unity</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>PlatformIO vs Arduino IDE</h2>
+        <table>
+          <tr><th>Característica</th><th>Arduino IDE</th><th>PlatformIO</th></tr>
+          <tr><td>Gerenciamento de libs</td><td>Manual</td><td>Automático (lib_deps)</td></tr>
+          <tr><td>Múltiplos ambientes</td><td>Não</td><td>Sim (multi-env)</td></tr>
+          <tr><td>Testes</td><td>Não</td><td>Sim (Unity)</td></tr>
+          <tr><td>Debug</td><td>Limitado</td><td>GDB, Ozone</td></tr>
+          <tr><td>CI/CD</td><td>Não</td><td>Sim</td></tr>
+          <tr><td>Lint</td><td>Não</td><td>Sim (cppcheck, clang-tidy)</td></tr>
+        </table>
+        <p class="objective">PlatformIO é o padrão da indústria para projetos sérios.</p>
+      </section>
+
+      <section>
+        <h2>Estrutura do Projeto</h2>
+        <pre><code class="language-text">projeto-telemetria/
+├── platformio.ini       # Configuracao principal
+├── src/
+│   └── main.cpp         # Codigo fonte
+├── lib/
+│   ├── BMP280Wrapper/   # Biblioteca interna
+│   │   ├── BMP280Wrapper.h
+│   │   └── BMP280Wrapper.cpp
+│   └── PacketProtocol/
+│       ├── PacketProtocol.h
+│       └── PacketProtocol.cpp
+├── test/
+│   ├── test_checksum.cpp
+│   └── test_packet.cpp
+└── include/             # Headers globais
+    └── config.h</code></pre>
+      </section>
+
+      <section>
+        <h2>platformio.ini — Multi-Environments</h2>
+        <pre><code class="language-ini">[platformio]
+default_envs = native
+
+[env]
+monitor_speed = 115200
+
+[env:native]
+platform = native
+test_framework = unity
+
+[env:uno]
+platform = atmelavr
+board = uno
+framework = arduino
+lib_deps =
+  adafruit/Adafruit BMP280 Library@^2.6
+
+[env:teensy]
+platform = teensy
+board = teensy40
+framework = arduino
+lib_deps =
+  adafruit/Adafruit BMP280 Library@^2.6
+  bblanchon/ArduinoJson@^7.0
+
+[env:esp32]
+platform = espressif32
+board = esp32-devkitc-v4
+framework = arduino
+monitor_speed = 115200</code></pre>
+      </section>
+
+      <section>
+        <h2>lib_deps — Gerenciamento de Dependências</h2>
+        <p>PlatformIO baixa e gerencia bibliotecas automaticamente:</p>
+        <pre><code class="language-ini">[env:teensy]
+lib_deps =
+  adafruit/Adafruit BMP280 Library@^2.6.0
+  adafruit/Adafruit BusIO@^1.14
+  bblanchon/ArduinoJson@^7.0.0
+  # Tambem aceita URLs de GitHub:
+  # https://github.com/usuario/biblioteca.git
+
+lib_ignore =
+  Adafruit BusIO  # nao usar esta lib neste env</code></pre>
+        <p>Nunca mais baixe ZIP manualmente!</p>
+      </section>
+
+      <section>
+        <h2>build_flags e build_unflags</h2>
+        <p>Configure defines e flags do compilador:</p>
+        <pre><code class="language-ini">[env:teensy]
+build_flags =
+  -O2                        # Otimizacao
+  -DDEBUG_LEVEL=2            # Define em C
+  -DSERIAL_BAUD=115200
+  -std=c++17
+
+build_unflags =
+  -O0                        # Remove flag padrao
+
+[env:esp32]
+build_flags =
+  -DCORE_DEBUG_LEVEL=5       # Debug maximo
+  -DBOARD_HAS_PSRAM</code></pre>
+        <p>Use no código:</p>
+        <pre><code class="language-cpp">#ifdef DEBUG_LEVEL
+  Serial.print("Debug: ");
+  Serial.println(valor);
+#endif</code></pre>
+      </section>
+
+      <section>
+        <h2>lib/ — Bibliotecas Internas</h2>
+        <p>Cada biblioteca dentro de <code>lib/</code> tem seu próprio namespace:</p>
+        <pre><code class="language-cpp">// lib/BMP280Wrapper/BMP280Wrapper.h
+#pragma once
+#include &lt;Adafruit_BMP280.h&gt;
+
+class BMP280Wrapper {
+public:
+  bool begin(uint8_t addr = 0x76);
+  float lerTemperatura();
+  float lerPressao();
+  float lerAltitude(float pressao_nivel_mar = 1013.25);
+private:
+  Adafruit_BMP280 bmp;
+};</code></pre>
+        <pre><code class="language-cpp">// lib/BMP280Wrapper/BMP280Wrapper.cpp
+#include "BMP280Wrapper.h"
+
+bool BMP280Wrapper::begin(uint8_t addr) {
+  return bmp.begin(addr);
+}
+
+float BMP280Wrapper::lerTemperatura() {
+  return bmp.readTemperature();
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>src/main.cpp — Código Principal</h2>
+        <pre><code class="language-cpp">#include &lt;Arduino.h&gt;
+#include "BMP280Wrapper.h"
+#include "PacketProtocol.h"
+
+BMP280Wrapper sensor;
+PacketProtocol protocolo;
+unsigned long ultima_amostra = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+
+  if (!sensor.begin()) {
+    Serial.println("Falha no sensor!");
+    while (1);
+  }
+}
+
+void loop() {
+  unsigned long agora = millis();
+  if (agora - ultima_amostra < 50) return;
+  ultima_amostra = agora;
+
+  float temp = sensor.lerTemperatura();
+  float pressao = sensor.lerPressao();
+  float alt = sensor.lerAltitude();
+
+  protocolo.enviarPacoteTelemetria(agora, alt, temp, pressao);
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Testes com Unity</h2>
+        <p>Unity é um framework de testes para C/C++:</p>
+        <pre><code class="language-cpp">// test/test_checksum.cpp
+#include &lt;unity.h&gt;
+#include "PacketProtocol.h"
+
+PacketProtocol protocolo;
+
+void setUp(void) {}
+void tearDown(void) {}
+
+void test_checksum_correto() {
+  uint8_t calc = protocolo.calcularChecksum("T,100,25.30,101325");
+  uint8_t esperado = 'T' ^ ',' ^ '1' ^ '0' ^ '0' ^ ',' ... ;
+  TEST_ASSERT_EQUAL_UINT8(esperado, calc);
+}
+
+void test_checksum_vazio() {
+  uint8_t calc = protocolo.calcularChecksum("");
+  TEST_ASSERT_EQUAL_UINT8(0, calc);
+}
+
+void setup() {
+  UNITY_BEGIN();
+  RUN_TEST(test_checksum_correto);
+  RUN_TEST(test_checksum_vazio);
+  UNITY_END();
+}
+
+void loop() {}</code></pre>
+      </section>
+
+      <section>
+        <h2>Rodando Testes</h2>
+        <pre><code class="language-bash"># Testes nativos (no PC, rapido)
+pio test -e native
+
+# Testes no hardware Teensy
+pio test -e teensy
+
+# Com verbose
+pio test -e native -v
+
+# Filtrar por nome
+pio test -e native --filter checksum</code></pre>
+        <p>Testes nativos compilam para seu PC e rodam em segundos.</p>
+      </section>
+
+      <section>
+        <h2>Teste com Dados de Exemplo</h2>
+        <pre><code class="language-cpp">// test/test_packet.cpp
+void test_parse_pacote_valido() {
+  const char* linha = "$T,100,120.50,25.30,101325,5.01*3F\n";
+
+  Pacote pacote;
+  bool ok = protocolo.parseLinha(linha, &pacote);
+
+  TEST_ASSERT_TRUE(ok);
+  TEST_ASSERT_EQUAL_INT(100, pacote.timestamp);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 120.50, pacote.altitude);
+  TEST_ASSERT_FLOAT_WITHIN(0.01, 25.30, pacote.temperatura);
+  TEST_ASSERT_EQUAL_UINT8(0x3F, pacote.checksum);
+}
+
+void test_rejeita_checksum_invalido() {
+  const char* linha = "$T,100,120.50*00\n";  // checksum errado
+  Pacote pacote;
+  bool ok = protocolo.parseLinha(linha, &pacote);
+  TEST_ASSERT_FALSE(ok);
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Integração Contínua (CI)</h2>
+        <p>PlatformIO se integra com GitHub Actions:</p>
+        <pre><code class="language-yaml"># .github/workflows/test.yml
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Run native tests
+        run: pio test -e native</code></pre>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Criar projeto PlatformIO com estrutura src/, lib/, test/</li>
+          <li>Configurar platformio.ini com env:native e env:uno</li>
+          <li>Criar biblioteca interna (ex: Calculator) em lib/</li>
+          <li>Escrever 3 testes com Unity (nativo)</li>
+          <li>Adicionar build_flag para DEBUG e testar</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>PlatformIO substitui Arduino IDE com vantagens profissionais</li>
+          <li>Estrutura src/lib/test organiza o projeto</li>
+          <li>platformio.ini multi-env para diferentes placas</li>
+          <li>lib_deps gerencia dependências automaticamente</li>
+          <li>Testes Unity garantem qualidade do código</li>
+        </ul>
+        <p>PlatformIO é o padrão para firmware de telemetria.</p>
+        <p class="subtitle">Próximo passo: Semana 05 — Integração Arduino ↔ Python</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

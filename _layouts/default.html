@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="{{ '/' | relative_url }}" class="site-logo">
+        <span class="logo-icon">▣</span>
+        <span class="logo-text">{{ site.title }}</span>
+      </a>
+      <nav class="site-nav">
+        <a href="{{ '/docs/' | relative_url }}">Início</a>
+        <a href="{{ '/docs/trilhas/' | relative_url }}">Trilhas</a>
+        <a href="{{ '/docs/semanas/' | relative_url }}">Semanas</a>
+        <a href="{{ '/docs/slides/' | relative_url }}">Slides</a>
+        <a href="{{ '/docs/quiz/' | relative_url }}">Quiz</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h3>Treinamento</h3>
+        <ul>
+          <li><a href="{{ '/docs/guia-do-aluno' | relative_url }}">Guia do Aluno</a></li>
+          <li><a href="{{ '/docs/roadmap-8-semanas' | relative_url }}">Roadmap</a></li>
+          <li><a href="{{ '/docs/diagrama-semanas' | relative_url }}">Diagrama</a></li>
+          <li><a href="{{ '/docs/calendario' | relative_url }}">Calendário</a></li>
+          <li><a href="{{ '/docs/visao-geral' | relative_url }}">Visão Geral</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <h3>Recursos</h3>
+        <ul>
+          <li><a href="{{ '/docs/materiais-consulta' | relative_url }}">Materiais</a></li>
+          <li><a href="{{ '/docs/glossario' | relative_url }}">Glossário</a></li>
+          <li><a href="{{ '/docs/bom' | relative_url }}">BOM</a></li>
+          <li><a href="{{ '/docs/troubleshooting' | relative_url }}">Troubleshooting</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <h3>Trilhas</h3>
+        <ul>
+          <li><a href="{{ '/docs/trilhas/github' | relative_url }}">GitHub</a></li>
+          <li><a href="{{ '/docs/trilhas/python' | relative_url }}">Python</a></li>
+          <li><a href="{{ '/docs/trilhas/arduino-ide' | relative_url }}">Arduino IDE</a></li>
+          <li><a href="{{ '/docs/trilhas/platformio' | relative_url }}">PlatformIO</a></li>
+          <li><a href="{{ '/docs/trilhas/kicad' | relative_url }}">KiCad</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <h3>Semanas</h3>
+        <ul>
+          {% for i in (0..8) %}
+          <li><a href="{{ '/docs/semanas/semana-0' | append: i | relative_url }}">Semana {{ i }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      {{ content }}
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Serra Rocketry</strong> — Equipe de Telemetria e Controle</p>
+      <p class="footer-links">
+        <a href="https://github.com/Serra-Rocketry/telemetry-trainee-program">GitHub</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

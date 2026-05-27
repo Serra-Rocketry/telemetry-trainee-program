@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 02 — Python Aplicado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 02</h1>
+        <h2>Python Aplicado</h2>
+        <p class="subtitle">Parsing, validação e comunicação serial</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Fazer parsing de pacotes delimitados da serial</li>
+          <li>Validar dados (range, NaN, checksum)</li>
+          <li>Conectar com Flight Computer via serial</li>
+          <li>Processar dados reais em tempo real</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Por que Parsing é Importante?</h2>
+        <p>O Flight Computer envia dados como strings delimitadas:</p>
+        <pre><code class="language-text">$T,100,120.5,25.3,101325,5.01*3F
+$T,200,245.1,24.8,100500,4.98*2D
+$T,300,368.7,24.2,99500,4.95*1B</code></pre>
+        <ul>
+          <li><strong>$T</strong> — tipo do pacote (telemetry)</li>
+          <li><strong>100,120.5,...</strong> — dados separados por vírgula</li>
+          <li><strong>*3F</strong> — checksum hexadecimal</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Estrutura do Pacote</h2>
+        <p>Formato definido pelo protocolo de telemetria:</p>
+        <pre><code class="language-text">$&lt;tipo&gt;,&lt;timestamp&gt;,&lt;altitude&gt;,&lt;temp&gt;,&lt;pressao&gt;,&lt;voltage&gt;*&lt;checksum&gt;</code></pre>
+        <p>Campos:</p>
+        <ul>
+          <li><code>tipo</code>: T (telemetria), E (erro), S (status)</li>
+          <li><code>timestamp</code>: ms desde o boot</li>
+          <li><code>altitude</code>: metros</li>
+          <li><code>temp</code>: graus Celsius</li>
+          <li><code>pressao</code>: Pascal</li>
+          <li><code>voltage</code>: Volts</li>
+          <li><code>checksum</code>: XOR de todos os bytes entre $ e *</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Parser de Pacotes</h2>
+        <pre><code class="language-python">def parse_packet(linha):
+    if not linha.startswith("$"):
+        return None
+
+    # Remove $ e quebra no *
+    conteudo, checksum_str = linha[1:].split("*")
+    campos = conteudo.split(",")
+    tipo = campos[0]
+
+    return {
+        "tipo": tipo,
+        "timestamp": int(campos[1]),
+        "altitude": float(campos[2]),
+        "temp": float(campos[3]),
+        "pressao": float(campos[4]),
+        "voltage": float(campos[5]),
+        "checksum": int(checksum_str, 16),
+        "raw": linha,
+    }</code></pre>
+      </section>
+
+      <section>
+        <h2>Validação de Checksum</h2>
+        <pre><code class="language-python">def calcular_checksum(linha):
+    # XOR de todos os bytes entre $ e *
+    conteudo = linha[1:].split("*")[0]
+    checksum = 0
+    for char in conteudo:
+        checksum ^= ord(char)
+    return checksum
+
+def validar_checksum(linha):
+    _, checksum_str = linha[1:].split("*")
+    esperado = int(checksum_str, 16)
+    calculado = calcular_checksum(linha)
+    return calculado == esperado
+
+# Uso
+if validar_checksum("$T,100,120.5,25.3*3F"):
+    print("Checksum OK")
+else:
+    print("Dados corrompidos!")</code></pre>
+      </section>
+
+      <section>
+        <h2>Validação de Range e NaN</h2>
+        <pre><code class="language-python">import math
+
+LIMITES = {
+    "altitude": (-500, 50000),
+    "temp": (-40, 85),
+    "pressao": (30000, 110000),
+    "voltage": (3.0, 5.5),
+}
+
+def validar_dados(packet):
+    if math.isnan(packet["altitude"]):
+        return False, "altitude NaN"
+    if math.isnan(packet["temp"]):
+        return False, "temp NaN"
+
+    for campo, (min_v, max_v) in LIMITES.items():
+        valor = packet[campo]
+        if valor &lt; min_v or valor &gt; max_v:
+            return False, f"{campo} fora de range: {valor}"
+
+    return True, "OK"</code></pre>
+      </section>
+
+      <section>
+        <h2>Pipeline de Validação</h2>
+        <pre><code class="language-python">def processar_linha(linha):
+    resultado = {"valido": False, "pacote": None, "erro": None}
+
+    if not validar_checksum(linha):
+        resultado["erro"] = "Checksum invalido"
+        return resultado
+
+    packet = parse_packet(linha)
+    if packet is None:
+        resultado["erro"] = "Formato invalido"
+        return resultado
+
+    valido, erro = validar_dados(packet)
+    if not valido:
+        resultado["erro"] = erro
+        return resultado
+
+    resultado["valido"] = True
+    resultado["pacote"] = packet
+    return resultado</code></pre>
+      </section>
+
+      <section>
+        <h2>Conectando com Serial</h2>
+        <pre><code class="language-python">import serial
+
+def conectar_flight_computer(porta="/dev/ttyACM0", baud=115200):
+    try:
+        ser = serial.Serial(
+            port=porta,
+            baudrate=baud,
+            timeout=1,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+        )
+        print(f"Conectado a {porta} a {baud} baud")
+        return ser
+    except serial.SerialException as e:
+        print(f"Erro ao conectar: {e}")
+        return None</code></pre>
+        <p class="objective">Linux: o usuário precisa estar no grupo <code>dialout</code>.</p>
+      </section>
+
+      <section>
+        <h2>Leitura em Tempo Real</h2>
+        <pre><code class="language-python">def ler_telemetria(ser, callback, max_linhas=100):
+    contador = 0
+    while contador &lt; max_linhas:
+        try:
+            linha = ser.readline().decode("utf-8").strip()
+            if not linha:
+                continue
+
+            resultado = processar_linha(linha)
+            if resultado["valido"]:
+                callback(resultado["pacote"])
+                contador += 1
+            else:
+                print(f"Pacote rejeitado: {resultado['erro']}")
+
+        except serial.SerialException:
+            print("Conexao perdida!")
+            break
+
+def exibir_pacote(pkt):
+    print(f"[{pkt['timestamp']}] Alt={pkt['altitude']:.1f}m "
+          f"T={pkt['temp']:.1f}C P={pkt['pressao']:.0f}Pa")</code></pre>
+      </section>
+
+      <section>
+        <h2>Salvando em CSV</h2>
+        <pre><code class="language-python">import csv
+
+class LoggerCSV:
+    def __init__(self, caminho="log_telemetria.csv"):
+        self.arquivo = open(caminho, "w", newline="")
+        self.escritor = csv.DictWriter(
+            self.arquivo,
+            fieldnames=["timestamp", "altitude", "temp", "pressao", "voltage"]
+        )
+        self.escritor.writeheader()
+
+    def escrever(self, pacote):
+        self.escritor.writerow({
+            "timestamp": pacote["timestamp"],
+            "altitude": pacote["altitude"],
+            "temp": pacote["temp"],
+            "pressao": pacote["pressao"],
+            "voltage": pacote["voltage"],
+        })
+
+    def fechar(self):
+        self.arquivo.close()</code></pre>
+      </section>
+
+      <section>
+        <h2>Script Principal</h2>
+        <pre><code class="language-python">def main():
+    ser = conectar_flight_computer()
+    if ser is None:
+        return
+
+    logger = LoggerCSV("voo_2024.csv")
+
+    def callback(pacote):
+        exibir_pacote(pacote)
+        logger.escrever(pacote)
+
+    try:
+        ler_telemetria(ser, callback, max_linhas=500)
+    except KeyboardInterrupt:
+        print("\nEncerrando...")
+    finally:
+        logger.fechar()
+        ser.close()
+        print("Arquivo salvo. Conexao fechada.")
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Implementar parser completo com validação de checksum</li>
+          <li>Adicionar validação de range para todos os campos</li>
+          <li>Detectar e contar pacotes inválidos</li>
+          <li>Conectar com Flight Computer (ou simulador) e logar 100 pacotes</li>
+          <li>Gerar estatísticas dos dados coletados</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>Pacotes delimitados com checksum implementados</li>
+          <li>Validação em 3 camadas: formato, checksum, range</li>
+          <li>Conexão serial com Flight Computer estabelecida</li>
+          <li>Dados salvos em CSV para análise posterior</li>
+        </ul>
+        <p>Python é a ponte entre o hardware e a análise de dados.</p>
+        <p class="subtitle">Próximo passo: Semana 03 — Arduino IDE</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

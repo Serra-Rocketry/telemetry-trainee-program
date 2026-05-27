@@ -1,0 +1,47 @@
+name: Entrega Semanal
+description: Template para abrir a issue de cada semana do treinamento.
+labels: ["treinamento"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Semana X — Nome da Semana
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: O que deve ser entregue ao final da semana.
+      placeholder: Ler CSV de telemetria e gerar estatísticas...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tarefas
+    attributes:
+      label: Tarefas
+      description: Checklist do que precisa ser feito.
+      placeholder: |
+        - [ ] Ler arquivo CSV
+        - [ ] Calcular estatísticas
+        - [ ] Salvar resumo
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      description: Como saber se a tarefa está completa.
+      placeholder: |
+        - [ ] Código executa sem erros
+        - [ ] README atualizado
+
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referências
+      description: Links úteis para a semana.
+      placeholder: |
+        - [Trilha Python](/docs/trilhas/python.md)
+        - [Slides](/docs/slides/semana-01.html)

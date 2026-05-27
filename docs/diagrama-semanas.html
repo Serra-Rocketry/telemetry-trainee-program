@@ -1,0 +1,91 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagrama das Semanas</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { primaryColor: '#1c2333', primaryTextColor: '#e6edf3', primaryBorderColor: '#30363d', lineColor: '#8b949e', secondaryColor: '#ff6b35', tertiaryColor: '#2ea043' } });</script>
+<style>
+body { background: #0d1117; display: flex; justify-content: center; padding: 40px 20px; margin: 0; font-family: 'Inter', sans-serif; }
+.wrapper { max-width: 1100px; width: 100%; }
+h1 { color: #e6edf3; font-size: 28px; margin-bottom: 8px; }
+.subtitle { color: #8b949e; margin-bottom: 32px; }
+.back { color: #ff6b35; text-decoration: none; font-size: 14px; display: inline-block; margin-bottom: 20px; }
+.back:hover { text-decoration: underline; }
+.mermaid-wrap { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 32px 20px; margin-bottom: 40px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; color: #e6edf3; }
+th { background: #1c2333; padding: 10px 12px; text-align: left; border: 1px solid #30363d; font-weight: 600; }
+td { padding: 8px 12px; border: 1px solid #30363d; color: #8b949e; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a class="back" href="index.html">← Voltar</a>
+  <h1>Diagrama do Treinamento</h1>
+  <p class="subtitle">Fluxo das 8 semanas e conexão com os projetos reais.</p>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+graph TD
+    subgraph Treinamento
+        S0["Semana 0 - Onboarding & Git"]
+        S1["Semana 1 - Python básico"]
+        S2["Semana 2 - Python aplicado"]
+        S3["Semana 3 - Arduino IDE"]
+        S4["Semana 4 - PlatformIO"]
+        S5["Semana 5 - Integracao Python - Arduino"]
+        S6["Semana 6 - KiCad"]
+        S7["Semana 7 - Projetos Reais"]
+        S8["Semana 8 - Capstone"]
+    end
+
+    subgraph Projetos
+        FC["Flight Computer"]
+        HELIKE["Helike PocketQube"]
+    end
+
+    S0 --> S1
+    S1 --> S2 --> S5
+    S3 --> S4 --> S5
+    S5 --> S8
+    S6 --> S8
+    S7 --> S8
+
+    S0 -.->|fluxo git| FC
+    S0 -.->|fluxo git| HELIKE
+    S1 -.->|analise de dados| FC
+    S2 -.->|parser e validacao| FC
+    S2 -.->|parser| HELIKE
+    S3 -.->|GPIO, I2C| FC
+    S3 -.->|I2C, sensores| HELIKE
+    S4 -.->|estrutura PIO| HELIKE
+    S5 -.->|pipeline telemetria| FC
+    S6 -.->|PCB| HELIKE
+
+    style Treinamento fill:#1c2333,stroke:#ff6b35,color:#e6edf3
+    style Projetos fill:#1c2333,stroke:#2ea043,color:#e6edf3
+    style FC fill:#2ea043,color:#fff
+    style HELIKE fill:#2ea043,color:#fff
+    </pre>
+  </div>
+
+  <h2 style="color:#e6edf3;font-size:20px;margin-bottom:16px;">Conexao das semanas</h2>
+  <table>
+    <tr><th>Semana</th><th>Habilidades</th><th>Projeto real</th></tr>
+    <tr><td>0</td><td>Git, GitHub, PRs</td><td>Fluxo de desenvolvimento de ambos</td></tr>
+    <tr><td>1</td><td>Python: CSV, estatisticas</td><td>Analise pos-voo do FC</td></tr>
+    <tr><td>2</td><td>Python: parser, validacao</td><td>Parsing de telemetria do Helike</td></tr>
+    <tr><td>3</td><td>Arduino: GPIO, I2C, serial</td><td>Testes de hardware de ambos</td></tr>
+    <tr><td>4</td><td>PlatformIO: estrutura, testes</td><td>Organizacao do firmware Helike</td></tr>
+    <tr><td>5</td><td>Integracao Arduino - Python</td><td>Pipeline de telemetria do FC</td></tr>
+    <tr><td>6</td><td>KiCad: esquematico, ERC</td><td>CDB do Helike</td></tr>
+    <tr><td>7</td><td>Arquitetura de sistemas</td><td>Visao geral de ambos</td></tr>
+    <tr><td>8</td><td>Pipeline completo</td><td>Sintese de tudo</td></tr>
+  </table>
+</div>
+</body>
+</html>

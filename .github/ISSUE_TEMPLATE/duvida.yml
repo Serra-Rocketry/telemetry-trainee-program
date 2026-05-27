@@ -1,0 +1,35 @@
+name: Dúvida
+description: Tire uma dúvida sobre o treinamento.
+labels: ["duvida"]
+body:
+  - type: dropdown
+    id: semana
+    attributes:
+      label: Semana
+      options:
+        - Semana 0
+        - Semana 1
+        - Semana 2
+        - Semana 3
+        - Semana 4
+        - Semana 5
+        - Semana 6
+        - Semana 7
+        - Semana 8
+    validations:
+      required: true
+
+  - type: textarea
+    id: duvida
+    attributes:
+      label: Dúvida
+      description: Descreva sua dúvida com o máximo de detalhes.
+      placeholder: Estou tentando fazer X, mas acontece Y. Já tentei Z...
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: O que você já tentou? Anexe logs ou prints se possível.

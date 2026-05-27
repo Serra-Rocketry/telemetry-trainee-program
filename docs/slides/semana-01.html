@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 01 — Python Básico</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 01</h1>
+        <h2>Python Básico</h2>
+        <p class="subtitle">Manipulação de dados com Python padrão</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Ler arquivos CSV usando <code>csv.DictReader</code></li>
+          <li>Calcular estatísticas básicas (média, max, min)</li>
+          <li>Salvar resumo em arquivo de texto</li>
+          <li>Criar gráficos simples com matplotlib</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Por que CSV na Telemetria?</h2>
+        <p>CSV (Comma-Separated Values) é o formato mais comum para logs:</p>
+        <ul>
+          <li>Leve, legível, universalmente suportado</li>
+          <li>Ferramentas de solo exportam telemetria em CSV</li>
+          <li>Pandas, Excel, Google Sheets abrem diretamente</li>
+          <li>Perfeito para análise pós-voo</li>
+        </ul>
+        <pre><code class="language-csv">timestamp,altitude,temp,pressao,voltage
+100,120.5,25.3,101325,5.01
+200,245.1,24.8,100500,4.98
+300,368.7,24.2,99500,4.95</code></pre>
+      </section>
+
+      <section>
+        <h2>Lendo CSV com DictReader</h2>
+        <p><code>csv.DictReader</code> mapeia cada linha para um dicionário:</p>
+        <pre><code class="language-python">import csv
+
+def ler_dados(caminho):
+    dados = []
+    with open(caminho, mode='r') as arquivo:
+        leitor = csv.DictReader(arquivo)
+        for linha in leitor:
+            dados.append(linha)
+    return dados
+
+# Uso
+dados = ler_dados("log_voo.csv")
+print(dados[0])  # primeira linha como dict</code></pre>
+        <p class="objective">Cada linha vira um dict com as colunas como chaves.</p>
+      </section>
+
+      <section>
+        <h2>Convertendo Tipos</h2>
+        <p>CSV lê tudo como string — precisamos converter:</p>
+        <pre><code class="language-python">def converter_linha(linha):
+    return {
+        "timestamp": int(linha["timestamp"]),
+        "altitude": float(linha["altitude"]),
+        "temp": float(linha["temp"]),
+        "pressao": float(linha["pressao"]),
+        "voltage": float(linha["voltage"]),
+    }
+
+dados = [converter_linha(l) for l in ler_dados("log_voo.csv")]</code></pre>
+      </section>
+
+      <section>
+        <h2>Calculando Estatísticas</h2>
+        <pre><code class="language-python">def calcular_estatisticas(dados, campo):
+    valores = [linha[campo] for linha in dados]
+    return {
+        "media": sum(valores) / len(valores),
+        "maximo": max(valores),
+        "minimo": min(valores),
+        "amostras": len(valores),
+    }
+
+stats_temp = calcular_estatisticas(dados, "temp")
+print(f"Temperatura media: {stats_temp['media']:.2f} C")
+print(f"Max: {stats_temp['maximo']:.2f} C")
+print(f"Min: {stats_temp['minimo']:.2f} C")</code></pre>
+        <p class="objective">Sempre valide se a lista não está vazia antes de dividir!</p>
+      </section>
+
+      <section>
+        <h2>Salvando Resumo em Arquivo</h2>
+        <pre><code class="language-python">def salvar_resumo(stats, nome_arquivo="resumo.txt"):
+    with open(nome_arquivo, "w") as f:
+        f.write("=== RESUMO DE TELEMETRIA ===\n\n")
+        for campo, valores in stats.items():
+            f.write(f"{campo}:\n")
+            f.write(f"  Media:  {valores['media']:.2f}\n")
+            f.write(f"  Max:    {valores['maximo']:.2f}\n")
+            f.write(f"  Min:    {valores['minimo']:.2f}\n")
+            f.write(f"  Amostras: {valores['amostras']}\n\n")
+    print(f"Resumo salvo em {nome_arquivo}")</code></pre>
+      </section>
+
+      <section>
+        <h2>matplotlib — Primeiro Gráfico</h2>
+        <pre><code class="language-python">import matplotlib.pyplot as plt
+
+def plotar_altitude(dados):
+    tempos = [linha["timestamp"] for linha in dados]
+    altitudes = [linha["altitude"] for linha in dados]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(tempos, altitudes, color="#ff6b35", linewidth=2)
+    plt.title("Altitude vs Tempo")
+    plt.xlabel("Tempo (ms)")
+    plt.ylabel("Altitude (m)")
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig("altitude.png", dpi=150)
+    plt.show()</code></pre>
+      </section>
+
+      <section>
+        <h2>Subplots — Múltiplos Sensores</h2>
+        <pre><code class="language-python">def plotar_multiplos(dados):
+    fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+    tempo = [l["timestamp"] for l in dados]
+
+    axs[0, 0].plot(tempo, [l["altitude"] for l in dados])
+    axs[0, 0].set_title("Altitude")
+    axs[0, 1].plot(tempo, [l["temp"] for l in dados], color="red")
+    axs[0, 1].set_title("Temperatura")
+    axs[1, 0].plot(tempo, [l["pressao"] for l in dados], color="green")
+    axs[1, 0].set_title("Pressao")
+    axs[1, 1].plot(tempo, [l["voltage"] for l in dados], color="orange")
+    axs[1, 1].set_title("Voltagem")
+
+    plt.tight_layout()
+    plt.savefig("telemetria_completa.png")</code></pre>
+      </section>
+
+      <section>
+        <h2>Tratamento de Erros</h2>
+        <p>Sempre considere que o arquivo pode estar ausente ou mal formatado:</p>
+        <pre><code class="language-python">def ler_dados_seguro(caminho):
+    try:
+        with open(caminho, mode='r') as f:
+            return list(csv.DictReader(f))
+    except FileNotFoundError:
+        print(f"Erro: arquivo {caminho} nao encontrado")
+        return []
+    except csv.Error as e:
+        print(f"Erro ao ler CSV: {e}")
+        return []</code></pre>
+      </section>
+
+      <section>
+        <h2>Script Completo</h2>
+        <pre><code class="language-python">import csv
+import matplotlib.pyplot as plt
+
+def main():
+    dados = ler_dados_seguro("log_voo.csv")
+    if not dados:
+        return
+
+    dados_convertidos = [converter_linha(l) for l in dados]
+
+    stats = {}
+    for campo in ["altitude", "temp", "pressao", "voltage"]:
+        stats[campo] = calcular_estatisticas(dados_convertidos, campo)
+
+    salvar_resumo(stats)
+    plotar_altitude(dados_convertidos)
+    plotar_multiplos(dados_convertidos)
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </section>
+
+      <section>
+        <h2>Exercícios</h2>
+        <ol>
+          <li>Criar um CSV de telemetria simulado (10+ linhas)</li>
+          <li>Ler e converter os dados corretamente</li>
+          <li>Calcular média, max, min para cada grandeza</li>
+          <li>Salvar resumo em <code>resumo.txt</code></li>
+          <li>Gerar gráfico de altitude e temperatura</li>
+          <li>(Extra) Adicionar desvio padrão</li>
+        </ol>
+        <p class="objective">Entregar via PR até domingo.</p>
+      </section>
+
+      <section>
+        <h2>Resumo & Conclusão</h2>
+        <ul>
+          <li>CSV lido e convertido com <code>csv.DictReader</code></li>
+          <li>Estatísticas calculadas manualmente (sem pandas)</li>
+          <li>Resumo salvo em arquivo de texto</li>
+          <li>Gráficos gerados com matplotlib</li>
+        </ul>
+        <p>Python é a base de toda a análise de telemetria.</p>
+        <p class="subtitle">Próximo passo: Semana 02 — Python aplicado</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>
