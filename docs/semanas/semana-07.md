@@ -138,9 +138,9 @@ Crie uma tabela comparando os dois projetos:
 - Por que o Helike tem um terminador '#' no pacote e o FC não?
 
 ## Referências
+- [Repositório Flight Computer](https://github.com/Serra-Rocketry/flight-computer)
 
-- [Repositório Flight Computer](https://github.com/ViniciusCMB/flight-computer)
-- [Repositório Helike](https://github.com/ViniciusCMB/satellite)
+- [Repositório Helike](https://github.com/Serra-Rocketry/satellite)
 - [Slide deck](../slides/semana-07.html)
 - [Quiz](../quiz/semana-07.html)
 - [Trilha Arquitetura de Firmware](../trilhas/firmware-architecture.md)

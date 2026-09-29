@@ -61,7 +61,7 @@ git config --global user.email "seu@email.com"
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/ViniciusCMB/telemetry-trainee-program.git
+git clone https://github.com/Serra-Rocketry/telemetry-trainee-program.git
 
 # Ver status das alterações
 git status

@@ -8,7 +8,7 @@ Mostrar o fluxo completo de contribuição com branches e PRs.
 
 ```bash
 # 1. Clonar o repositório
-git clone https://github.com/ViniciusCMB/telemetry-trainee-program.git
+git clone https://github.com/Serra-Rocketry/telemetry-trainee-program.git
 cd telemetry-trainee-program
 
 # 2. Criar branch pessoal

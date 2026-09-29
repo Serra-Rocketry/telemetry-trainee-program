@@ -43,5 +43,5 @@ Data de conclusão: \_\_\_\_/\_\_\_\_/\_\_\_\_
 
 ---
 
-> Serra Rocketry - Equipe de Telemetria e Controle
-> https://github.com/ViniciusCMB/telemetry-trainee-program
+> Serra Rocketry — Equipe de Telemetria e Controle
+> https://github.com/Serra-Rocketry/telemetry-trainee-program
