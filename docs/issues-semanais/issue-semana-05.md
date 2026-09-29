@@ -1,4 +1,4 @@
-# Semana 5 — Integracao Arduino ↔ Python
+# Semana 5 - Integracao Arduino ↔ Python
 
 ## Objetivo
 

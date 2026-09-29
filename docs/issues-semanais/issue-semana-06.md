@@ -1,4 +1,4 @@
-# Semana 6 — KiCad basico
+# Semana 6 - KiCad basico
 
 ## Objetivo
 

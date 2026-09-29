@@ -2,24 +2,24 @@
 
 ---
 
-**Nome do Trainee:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+Nome do Trainee: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-**Turma:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+Turma: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-**Período:** \_\_\_\_\_\_\_\_\_\_ a \_\_\_\_\_\_\_\_\_\_
+Período: \_\_\_\_\_\_\_\_\_\_ a \_\_\_\_\_\_\_\_\_\_
 
 ---
 
-Concluiu com êxito o programa de treinamento de **8 semanas** da equipe de **Telemetria e Controle** da **Serra Rocketry**.
+Concluiu com êxito o programa de treinamento de 8 semanas da equipe de Telemetria e Controle da Serra Rocketry.
 
 ## Competências adquiridas
 
-- **Git e GitHub** — fluxo de issues, branches, PRs e revisão
-- **Python** — leitura de dados, parsing, validação e análise de telemetria
-- **Arduino IDE** — GPIO, I2C, serial, aquisição de sensores
-- **PlatformIO** — projeto modular, múltiplos ambientes, testes nativos
-- **KiCad** — esquemático, ERC, PCB
-- **Integração** — pipeline end-to-end de telemetria
+- Git e GitHub - fluxo de issues, branches, PRs e revisão
+- Python - leitura de dados, parsing, validação e análise de telemetria
+- Arduino IDE - GPIO, I2C, serial, aquisição de sensores
+- PlatformIO - projeto modular, múltiplos ambientes, testes nativos
+- KiCad - esquemático, ERC, PCB
+- Integração - pipeline end-to-end de telemetria
 
 ## Projetos
 
@@ -37,9 +37,9 @@ Concluiu com êxito o programa de treinamento de **8 semanas** da equipe de **Te
 
 ---
 
-**Instrutor:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+Instrutor: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-**Data de conclusão:** \_\_\_\_/\_\_\_\_/\_\_\_\_
+Data de conclusão: \_\_\_\_/\_\_\_\_/\_\_\_\_
 
 ---
 

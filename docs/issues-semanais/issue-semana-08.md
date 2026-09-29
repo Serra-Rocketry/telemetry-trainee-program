@@ -1,4 +1,4 @@
-# Semana 8 — Capstone
+# Semana 8 - Capstone
 
 ## Objetivo
 

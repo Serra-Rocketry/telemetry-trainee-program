@@ -1,4 +1,4 @@
-# Semana 4 — PlatformIO
+# Semana 4 - PlatformIO
 
 ## Objetivo
 
@@ -14,7 +14,7 @@ Migrar o projeto da Semana 3 do Arduino IDE para PlatformIO com estrutura modula
 
 ## Problema
 
-### Tarefa 1 — Criar projeto
+### Tarefa 1 - Criar projeto
 
 Crie um projeto PlatformIO para ESP32-C3 com a estrutura:
 
@@ -31,7 +31,7 @@ projeto/
         └── test_sensor.cpp
 ```
 
-### Tarefa 2 — Configurar platformio.ini
+### Tarefa 2 - Configurar platformio.ini
 
 Crie dois ambientes:
 - `esp32c3`: para o firmware (board `esp32-c3-devkitm-1`, framework arduino)
@@ -40,21 +40,21 @@ Crie dois ambientes:
 Adicione em `build_flags`: os pinos I2C como defines (`I2C_SDA=4`, `I2C_SCL=5`).
 Adicione em `lib_deps`: `Adafruit BMP280 Library`.
 
-### Tarefa 3 — Migrar o código
+### Tarefa 3 - Migrar o código
 
 Transfira o código da Semana 3 para `src/main.cpp`:
 - Adicione `#include <Arduino.h>` (no PlatformIO, .ino não existe mais)
 - Use os defines do `build_flags` em vez de números hardcoded
 - O código deve compilar com `pio run -e esp32c3`
 
-### Tarefa 4 — Módulo SensorData
+### Tarefa 4 - Módulo SensorData
 
 Crie `lib/calc/SensorData.h` com:
 - Uma `struct SensorData` com os campos do pacote
 - Um método `bool isValid()` que valida os ranges físicos (reaproveite a lógica da Semana 2)
 - Header-only (sem `.cpp`), sem dependência de bibliotecas Arduino
 
-### Tarefa 5 — Teste nativo
+### Tarefa 5 - Teste nativo
 
 Crie `test/test_sensor/test_sensor.cpp` que testa:
 - Um `SensorData` válido retorna `true`
@@ -67,8 +67,8 @@ Rode: `pio test -e native`
 
 ## Dicas
 
-- Em `lib/calc/SensorData.h`, use apenas C++ padrão — nada de `Arduino.h`, `Wire.h`, etc.
-- `build_flags` no platformio.ini: por exemplo `-DI2C_SDA=4` — no código use `I2C_SDA` diretamente
+- Em `lib/calc/SensorData.h`, use apenas C++ padrão - nada de `Arduino.h`, `Wire.h`, etc.
+- `build_flags` no platformio.ini: por exemplo `-DI2C_SDA=4` - no código use `I2C_SDA` diretamente
 - `lib_deps` aceita formato `autor/nome @ versão`
 - Comando pra compilar sketch de teste: `pio run -e esp32c3 --project-option="src_dir=caminho"`
 

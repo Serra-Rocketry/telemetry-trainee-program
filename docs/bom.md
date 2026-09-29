@@ -1,4 +1,4 @@
-# BOM — Lista de Componentes
+# BOM - Lista de Componentes
 
 Componentes usados ao longo do treinamento.
 

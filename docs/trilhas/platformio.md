@@ -15,6 +15,44 @@ PlatformIO é o ecossistema de desenvolvimento profissional usado no satélite H
 - VS Code + PlatformIO extension
 - Projeto da Semana 3 (Arduino IDE) concluído
 
+## Fluxo de Desenvolvimento PlatformIO
+
+```mermaid
+flowchart TD
+    A[Criar projeto] --> B[Configurar platformio.ini]
+    B --> C[Escrever codigo em src/]
+    C --> D[Bibliotecas em lib/]
+    D --> E{Compilar}
+    E -->|Sucesso| F[Upload para placa]
+    E -->|Erro| C
+    F --> G[Testes nativos]
+    G --> H[Commit e push]
+    
+    style A fill:#ff6b35,color:#fff
+    style H fill:#2ea043,color:#fff
+```
+
+## Estrutura de Projeto PlatformIO
+
+```
+projeto/
+├── platformio.ini          ← Configuração central
+├── src/
+│   └── main.cpp            ← Código principal
+├── lib/
+│   ├── sensor/             ← Módulo de sensores
+│   │   ├── SensorManager.h
+│   │   └── SensorManager.cpp
+│   └── comms/              ← Módulo de comunicação
+│       ├── LoraManager.h
+│       └── LoraManager.cpp
+├── include/                ← Headers públicos
+├── test/
+│   └── test_sensor/        ← Testes unitários
+│       └── test_sensor.cpp
+└── .vscode/                ← Configurações do IDE
+```
+
 ---
 
 ## 1. Por que PlatformIO?
@@ -29,7 +67,7 @@ O Arduino IDE é ótimo para aprender, mas projetos reais precisam de:
 | Organização modular | Tudo num `.ino` | `src/`, `lib/`, `include/` |
 | CI/CD | Manual | Integração com GitHub Actions |
 
-**No Helike** — O projeto usa PlatformIO com dois ambientes: `helike_esp32c3` (firmware do ESP32-C3) e `native` (testes unitários no PC).
+No Helike - O projeto usa PlatformIO com dois ambientes: `helike_esp32c3` (firmware do ESP32-C3) e `native` (testes unitários no PC).
 
 ---
 
@@ -58,11 +96,11 @@ projeto/
             └── bmp280.ino
 ```
 
-**Exemplo real** — O Helike segue exatamente esta estrutura: `lib/calc/` com módulos header-only testáveis no PC, `test/` com testes Unity, e `test_hardware/` com sketches de validação.
+Exemplo real - O Helike segue exatamente esta estrutura: `lib/calc/` com módulos header-only testáveis no PC, `test/` com testes Unity, e `test_hardware/` com sketches de validação.
 
 ---
 
-## 3. Configuração — platformio.ini
+## 3. Configuração - platformio.ini
 
 ### 3.1 Projeto básico
 
@@ -100,7 +138,7 @@ framework = unity
 build_flags = -I lib
 ```
 
-O ambiente `native` compila e roda **no seu PC**, perfeito para testar lógicas sem precisar de hardware.
+O ambiente `native` compila e roda no seu PC, perfeito para testar lógicas sem precisar de hardware.
 
 ---
 
@@ -121,7 +159,7 @@ O PlatformIO baixa e gerencia as versões automaticamente no `pio run`.
 
 ---
 
-## 5. Organização modular — lib/
+## 5. Organização modular - lib/
 
 Módulos em `lib/` devem ser independentes de hardware para serem testáveis no PC.
 
@@ -205,7 +243,7 @@ Para rodar:
 pio test -e native
 ```
 
-**No Helike** — São 25 testes unitários entre 3 módulos (Vz, apogeu, validação). Todos rodam via `pio test -e native`.
+No Helike - São 25 testes unitários entre 3 módulos (Vz, apogeu, validação). Todos rodam via `pio test -e native`.
 
 ---
 
@@ -246,11 +284,11 @@ pio run -e helike_esp32c3 \
 
 ## 9. Boas práticas
 
-1. **Cabeçalhos em `lib/`**: sejam header-only e sem dependência de Arduino (use apenas C++ padrão).
-2. **`lib_deps` no .ini**: nunca baixe bibliotecas manualmente.
-3. **Commits sem `pio run`**: `.pio/` e `.piolibdeps/` no `.gitignore`.
-4. **Testes antes do firmware**: implemente e teste a lógica em `native` antes de subir pra placa.
-5. **Constantes no `platformio.ini`**: use `build_flags` para definir pinos e thresholds (evite hardcoded).
+1. Cabeçalhos em `lib/`: sejam header-only e sem dependência de Arduino (use apenas C++ padrão).
+2. `lib_deps` no .ini: nunca baixe bibliotecas manualmente.
+3. Commits sem `pio run`: `.pio/` e `.piolibdeps/` no `.gitignore`.
+4. Testes antes do firmware: implemente e teste a lógica em `native` antes de subir pra placa.
+5. Constantes no `platformio.ini`: use `build_flags` para definir pinos e thresholds (evite hardcoded).
 
 ---
 
@@ -267,24 +305,24 @@ pio run -e helike_esp32c3 \
 
 ## Exercícios práticos
 
-### Nível 1 — Setup e build
+### Nível 1 - Setup e build
 
 1. Crie um projeto PlatformIO do zero para ESP32-C3.
 2. Configure `monitor_speed = 115200` e faça um blink.
 3. Compile e faça upload.
 
-### Nível 2 — Múltiplos ambientes
+### Nível 2 - Múltiplos ambientes
 
 1. Adicione um ambiente `native` para testes.
 2. Crie um módulo simples em `lib/` (ex: `CalculadoraMedia`) e teste no PC.
 
-### Nível 3 — Migração
+### Nível 3 - Migração
 
 1. Pegue o sketch da Semana 3 (Arduino IDE) e migre para PlatformIO.
 2. Separe sensores, comunicação e lógica em módulos dentro de `lib/`.
 3. Extraia constantes (pinos, thresholds) para `build_flags` no `platformio.ini`.
 
-### Nível 4 — Testes
+### Nível 4 - Testes
 
 1. Escreva testes para a lógica de detecção de apogeu do Flight Computer.
 2. Adicione um módulo de validação de dados em `lib/` com testes.
@@ -301,6 +339,182 @@ pio run -e helike_esp32c3 \
 | Testes Unity | Helike | 25 testes em 3 módulos |
 | `build_flags` | Helike | Define pinos e thresholds |
 | `lib_deps` | Ambos | LoRa, BME280, TinyGPS++, ESP32Servo |
+
+### Configuração real do Helike (satellite/platformio.ini)
+
+```ini
+[env:helike_esp32c3]
+platform = espressif32
+board = esp32-c3-devkitm-1
+framework = arduino
+board_build.mcu = esp32c3
+board_build.f_cpu = 160000000L
+monitor_speed = 115200
+upload_speed = 921600
+build_flags =
+    -DCORE_DEBUG_LEVEL=4
+    -DCONFIG_FREERTOS_UNICORE=1
+    -DARDUINO_USB_CDC_ON_BOOT=1
+    -DARDUINO_USB_MODE=1
+    -DI2C_SDA=8
+    -DI2C_SCL=9
+    -DLORA_SS=7
+    -DLORA_RST=1
+    -DLORA_DIO0=2
+    -DSD_CS=10
+    -DLED_PIN=3
+    -DBUZZER_PIN=0
+lib_deps =
+    sandeepmistry/LoRa @ ^0.8.0
+    adafruit/Adafruit BME280 Library @ ^2.2.4
+    adafruit/Adafruit BMP280 Library @ ^2.6.8
+    mikalhart/TinyGPSPlus @ ^1.0.3
+
+[env:native]
+platform = native
+framework = unity
+build_flags = -I lib
+test_filter = test_vz test_apogee test_validation
+```
+
+### Estrutura real do Helike
+
+```text
+satellite/
+├── src/
+│   ├── main.cpp               # Entry point (setup + loop)
+│   ├── config.h               # Global configuration
+│   ├── sensors/
+│   │   ├── ISensor.h          # Interface abstrata
+│   │   ├── BME280Sensor.h/.cpp
+│   │   ├── ICM20602Sensor.h/.cpp
+│   │   └── GPSSensor.h/.cpp
+│   └── modules/
+│       ├── LoRaModule.h/.cpp
+│       ├── TelemetryModule.h/.cpp
+│       ├── FilesystemModule.h/.cpp
+│       ├── LEDModule.h/.cpp
+│       └── BuzzerModule.h/.cpp
+├── lib/calc/                  # Biblioteca header-only
+│   ├── SensorData.h
+│   ├── VerticalVelocity.h
+│   ├── ApogeeDetection.h
+│   └── DataValidation.h
+├── test/                      # Testes nativos Unity
+│   ├── test_vz/
+│   ├── test_apogee/
+│   └── test_validation/
+├── test_hardware/             # Sketches de teste
+│   ├── sensor/
+│   ├── integration/
+│   └── storage/
+└── docs/
+    ├── software.md
+    ├── hardware.md
+    ├── firmware.md
+    └── flowchart.md
+```
+
+### Módulos de cálculo reais (lib/calc/)
+
+VerticalVelocity.h:
+```cpp
+#pragma once
+
+class VerticalVelocity {
+public:
+    VerticalVelocity(float alpha = 0.4f) : m_alpha(alpha) {}
+    
+    float update(float altitude, unsigned long timestamp_ms) {
+        if (m_prev_timestamp == 0) {
+            m_prev_timestamp = timestamp_ms;
+            m_prev_altitude = altitude;
+            return 0.0f;
+        }
+        
+        float dt = (timestamp_ms - m_prev_timestamp) / 1000.0f;
+        if (dt <= 0.0f) return m_vz;
+        
+        float vz_raw = (altitude - m_prev_altitude) / dt;
+        m_vz = m_alpha  vz_raw + (1.0f - m_alpha)  m_vz;
+        
+        m_prev_altitude = altitude;
+        m_prev_timestamp = timestamp_ms;
+        
+        return m_vz;
+    }
+    
+    void reset() {
+        m_vz = 0.0f;
+        m_prev_altitude = 0.0f;
+        m_prev_timestamp = 0;
+    }
+    
+private:
+    float m_alpha;
+    float m_vz = 0.0f;
+    float m_prev_altitude = 0.0f;
+    unsigned long m_prev_timestamp = 0;
+};
+```
+
+ApogeeDetection.h:
+```cpp
+#pragma once
+
+class ApogeeDetection {
+public:
+    ApogeeDetection(float threshold = -0.5f, int confirm_samples = 1)
+        : m_threshold(threshold), m_confirm_samples(confirm_samples) {}
+    
+    bool update(float vertical_velocity, float altitude) {
+        if (!m_detected) {
+            // Rastrear altitude máxima durante ascensão
+            if (altitude > m_peak_altitude) {
+                m_peak_altitude = altitude;
+                m_peak_timestamp = millis();
+            }
+            
+            // Detectar apogeu: Vz cruza threshold negativo
+            if (vertical_velocity < m_threshold) {
+                m_count++;
+                if (m_count >= m_confirm_samples) {
+                    m_detected = true;
+                    m_apogee_altitude = m_peak_altitude;
+                    m_apogee_timestamp = m_peak_timestamp;
+                }
+            } else {
+                m_count = 0;
+            }
+        }
+        
+        return m_detected;
+    }
+    
+    float getApogeeAltitude() const { return m_apogee_altitude; }
+    unsigned long getApogeeTimestamp() const { return m_apogee_timestamp; }
+    float getPeakAltitude() const { return m_peak_altitude; }
+    
+    void reset() {
+        m_detected = false;
+        m_count = 0;
+        m_peak_altitude = 0.0f;
+        m_peak_timestamp = 0;
+        m_apogee_altitude = 0.0f;
+        m_apogee_timestamp = 0;
+    }
+    
+private:
+    float m_threshold;
+    int m_confirm_samples;
+    int m_count = 0;
+    bool m_detected = false;
+    float m_peak_altitude = 0.0f;
+    unsigned long m_peak_timestamp = 0;
+    float m_apogee_altitude = 0.0f;
+    unsigned long m_apogee_timestamp = 0;
+};
+```
 
 ## Entregas relacionadas
 

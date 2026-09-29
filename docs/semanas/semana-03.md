@@ -1,4 +1,4 @@
-# Semana 3 — Arduino IDE
+# Semana 3 - Arduino IDE
 
 ## Objetivo
 
@@ -15,17 +15,17 @@ Programar um ESP32-C3 para ler sensor BMP280 e enviar dados formatados pela seri
 
 ## Problema
 
-### Tarefa 1 — Blink
+### Tarefa 1 - Blink
 
 Faça um LED (GPIO 1) piscar a 1 Hz. Use `pinMode()` e `digitalWrite()`.
 
-**Confira**: o LED acende e apaga numa frequência visível.
+Confira: o LED acende e apaga numa frequência visível.
 
-### Tarefa 2 — Scan I2C
+### Tarefa 2 - Scan I2C
 
 Conecte o BMP280 ao ESP32-C3 e faça um scan I2C para descobrir o endereço.
 
-**Conexões:**
+Conexões:
 ```
 BMP280 → ESP32-C3
 VCC    → 3.3V
@@ -36,30 +36,30 @@ SCL    → GPIO5
 
 Use `Wire.begin(4, 5)` e `Wire.endTransmission()` para varrer endereços de 1 a 127.
 
-**Saída esperada:** `Dispositivo em 0x76` (ou `0x77`)
+Saída esperada: `Dispositivo em 0x76` (ou `0x77`)
 
-### Tarefa 3 — Leitura do sensor
+### Tarefa 3 - Leitura do sensor
 
 Com a biblioteca Adafruit BMP280, leia altitude, temperatura e pressão. Envie os valores pela serial a cada 1 segundo.
 
-### Tarefa 4 — Pacotes formatados (20 Hz)
+### Tarefa 4 - Pacotes formatados (20 Hz)
 
-Adapte o código para enviar pacotes a **20 Hz** no formato:
+Adapte o código para enviar pacotes a 20 Hz no formato:
 
 ```
 #timestamp_ms;altitude_m;temperatura_C;pressao_hPa#
 ```
 
-**Regras:**
-- Use `millis()` para controle de tempo — `delay()` não é aceito
+Regras:
+- Use `millis()` para controle de tempo - `delay()` não é aceito
 - A taxa deve ser consistente (20 Hz ± 1 Hz)
-- O LED deve piscar independente (1 Hz) — não pode travar junto com o sensor
+- O LED deve piscar independente (1 Hz) - não pode travar junto com o sensor
 
 ## Dicas
 
 - `Wire.begin(sda, scl)` no `setup()` define os pinos I2C no ESP32-C3
 - A biblioteca BMP280 precisa de `#include <Adafruit_BMP280.h>` e `#include <Wire.h>`
-- Para leitura de altitude: `bmp.readAltitude(1013.25)` — o parâmetro é a pressão ao nível do mar
+- Para leitura de altitude: `bmp.readAltitude(1013.25)` - o parâmetro é a pressão ao nível do mar
 - `sprintf()` ou `snprintf()` ajuda a formatar o pacote
 - Estrutura típica sem delay:
   ```cpp
@@ -73,7 +73,7 @@ Adapte o código para enviar pacotes a **20 Hz** no formato:
 
 - Adicione validação: só envie pacote se o sensor respondeu corretamente
 - Adicione um botão no GPIO 2 com debounce que alterna o LED
-- Calcule a norma da aceleração (`sqrt(ax²+ay²+az²)`) — mesmo que os dados sejam simulados
+- Calcule a norma da aceleração (`sqrt(ax²+ay²+az²)`) - mesmo que os dados sejam simulados
 
 ## Critérios de aceite
 

@@ -4,7 +4,7 @@
 
 | Semana | Tema | Entrega principal | Sessao de PR |
 |--------|------|------------------|-------------|
-| 0 | Onboarding & GitHub | PR “hello world” | _definir data_ |
+| 0 | Onboarding & GitHub | PR "hello world" | _definir data_ |
 | 1 | Python básico | Script CSV + resumo | _definir data_ |
 | 2 | Python aplicado | Parser + validação | _definir data_ |
 | 3 | Arduino IDE | Serial + pacote | _definir data_ |

@@ -1,4 +1,4 @@
-# Semana X — Título da Semana
+# Semana X - Título da Semana
 
 ## O que foi feito
 

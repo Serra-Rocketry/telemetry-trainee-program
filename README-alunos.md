@@ -1,4 +1,4 @@
-# Treinamento Telemetria — Guia Rapido do Aluno
+# Treinamento Telemetria - Guia Rapido do Aluno
 
 Bem-vindo ao treinamento do time de telemetria da Serra Rocketry.
 

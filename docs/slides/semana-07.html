@@ -46,8 +46,8 @@
         <h2>O que é o Flight Computer?</h2>
         <p>O Flight Computer (FC) é o cérebro do foguete/satélite:</p>
         <ul>
-          <li>Processador principal (STM32, Teensy, RP2040)</li>
-          <li>Sensores: IMU, BMP280, GPS, magnetômetro</li>
+          <li>Processador: ESP32-S3 (Flight Computer) / ESP32-C3 (Helike)</li>
+          <li>Sensores: barômetro (BMP585/BME280), IMU (LSM6DS3/ICM-20602), GPS (NEO-8M)</li>
           <li>Atuadores: servo para paraquedas, buzzers, LEDs</li>
           <li>Comunicação: LoRa (rádio), XBee, WiFi (solo)</li>
           <li>Armazenamento: cartão SD para log de voo</li>
@@ -58,24 +58,24 @@
       <section>
         <h2>Arquitetura do FC</h2>
         <pre><code class="language-text">┌─────────────────────────────────────────────────┐
-│                 FLIGHT COMPUTER                  │
+│              FLIGHT COMPUTER (FC)                 │
+│            ESP32-S3 · dual-core 240MHz            │
 │                                                   │
-│  ┌──────────┐   I2C   ┌──────────┐               │
-│  │  BMP280  │◄────────┤          │               │
-│  │  (press) │         │          │               │
-│  └──────────┘         │          │               │
-│  ┌──────────┐   SPI   │   MCU    │──── UART ────► LoRa
-│  │  ICM20948│◄────────┤ (STM32)  │               │
-│  │ (IMU/Gyro)│        │          │               │
-│  └──────────┘         │          │──── SPI ─────► SD Card
-│  ┌──────────┐   UART  │          │               │
-│  │   GPS    │◄────────┤          │               │
-│  └──────────┘         └──────────┘               │
-│                              │                    │
-│                         ┌────┴────┐              │
-│                         │  BATERIA │              │
-│                         │  LiPo 3S │              │
-│                         └─────────┘              │
+│  ┌──────────┐  I2C  ┌──────────┐  I2C  ┌───────┐ │
+│  │  BMP585  │◄──────┤  LSM6DS3 │◄──────┤  GPS  │ │
+│  │ (baro)   │       │ (IMU)    │       │ NEO-8M│ │
+│  └──────────┘       └──────────┘       └───────┘ │
+│       │                  │                 │      │
+│       └──────────────────┴─────────────────┘      │
+│                          │ I2C/SPI                │
+│                     ┌────┴────┐                   │
+│                     │  MCU    │─── SPI ──► LoRa   │
+│                     │ESP32-S3 │─── SPI ──► SD     │
+│                     └────┬────┘                   │
+│                     ┌────┴────┐                   │
+│                     │ BATERIA │                   │
+│                     │ LiPo 2S │                   │
+│                     └─────────┘                   │
 └─────────────────────────────────────────────────┘</code></pre>
       </section>
 
@@ -83,60 +83,53 @@
         <h2>FSM — Finite State Machine</h2>
         <p>O FC opera em uma máquina de estados:</p>
         <pre><code class="language-text">        ┌──────────┐
-        │  IDLE    │ (solo, esperando lancamento)
+        │  IDLE    │ (solo, aguardando ARM + lancamento)
         └────┬─────┘
-             │ comando de lancamento
+             │ liftoff confirmado (acc > 15 m/s² por 100ms)
         ┌────▼─────┐
-        │  BOOST   │ (motor acionado)
+        │  ASCENT  │ (subindo, motor + balistico)
         └────┬─────┘
-             │ burnout
+             │ apogeu (|vz| < 1.0 m/s) + paraquedas
         ┌────▼─────┐
-        │ COAST    │ (ascensao balistica)
+        │ DESCENT  │ (descendo com paraquedas)
         └────┬─────┘
-             │ apogeu detectado
+             │ pouso (|vz| < 0.5 m/s & alt < 2m)
         ┌────▼─────┐
-        │ DROGUE   │ (paraquedas piloto)
-        └────┬─────┘
-             │ altitude segura
-        ┌────▼─────┐
-        │ MAIN     │ (paraquedas principal)
-        └────┬─────┘
-             │ pouso detectado
-        ┌────▼─────┐
-        │  LANDED  │ (log final, beacon)
-        └──────────┘</code></pre>
+        │  LANDED  │ (log final, beacon de recuperacao)
+        └──────────┘
+
+  FC: 4 estados + 7 sub-event flags
+  Helike: sem FSM (liga ja descendo)</code></pre>
       </section>
 
       <section>
         <h2>Telemetria no FC</h2>
-        <p>O FC transmite pacotes de telemetria a cada ~50ms (20 Hz):</p>
-        <pre><code class="language-cpp">// Estrutura do pacote de telemetria
-struct TelemetryPacket {
-  uint32_t timestamp;    // ms desde o boot
-  uint8_t  state;        // estado da FSM
-  float    altitude;     // metros
-  float    temperature;  // Celsius
-  float    pressure;     // Pascal
-  float    voltage;      // Volts (bateria)
-  float    accel_x;      // m/s^2
-  float    accel_y;
-  float    accel_z;
-  float    gyro_x;       // rad/s
-  float    gyro_y;
-  float    gyro_z;
-  uint8_t  checksum;     // XOR de todos os bytes
-} __attribute__((packed));</code></pre>
+        <p>O FC transmite pacotes de telemetria a cada ~200ms (5 Hz):</p>
+        <pre><code class="language-cpp">// Formato real: 22 campos CSV (FC) / 18 campos CSV (Helike)
+// Exemplo FC: #11,12345,1,250.3,101325,22.5,9.81,0.1,-0.3,...
+// Exemplo Helike: #213,12345,1,250.3,22.5,65,101325,...#
+
+// Pacote FC (simplificado):
+// team_id, millis, state, altitude, pressure, temperature,
+// accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z,
+// gps_lat, gps_lon, gps_alt, gps_sat, ...
+
+// Pacote Helike (18 campos):
+// team_id, millis, count, altp, temp, umidade, pressao,
+// gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z,
+// alt_baro, lat, lon, sat, rssi#</code></pre>
       </section>
 
       <section>
         <h2>Helike PocketQube</h2>
-        <p>Helike é um satélite no formato PocketQube (5×5×5 cm):</p>
+        <p>Helike é um satélite PocketQube (5×5×5 cm) da Serra Rocketry:</p>
         <ul>
-          <li>Padrão: 1P (5cm³) — ultra-compacto</li>
-          <li>Missão: coleta de dados ionosféricos</li>
-          <li>Órbita: LEO (Low Earth Orbit), ~400 km</li>
-          <li>Comunicação: LoRa ou AX.25 via rádio amador</li>
-          <li>CDB (Command & Data Base) — protocolo de bordo</li>
+          <li>Formato: PocketQube 1P (5cm³) — ultra-compacto</li>
+          <li>Missão: SRAB (Sistema de Recuperação e Aterrissagem do Bob)</li>
+          <li>Competição: LASC 2026 (Latin American Space Challenge)</li>
+          <li>MCU: ESP32-C3 SuperMini (single-core RISC-V, 160MHz)</li>
+          <li>Comunicação: LoRa 915 MHz (RFM95W)</li>
+          <li>Plataforma: PlatformIO com testes nativos (Unity)</li>
         </ul>
       </section>
 
@@ -167,21 +160,22 @@ TC_ID=0xA0  COMANDO_RESET
         <h2>LoRa — Rádio Comunicação</h2>
         <p>LoRa (Long Range) é o link de rádio do Helike:</p>
         <ul>
-          <li>Frequência: 433 MHz ou 915 MHz (ISM band)</li>
-          <li>Alcance: até 10 km (solo) ou ~2000 km (satélite)</li>
-          <li>Taxa: 300 bps a 50 kbps</li>
-          <li>Modulação: Chirp Spread Spectrum (CSS)</li>
-          <li>Baixíssimo consumo de energia</li>
+          <li>Frequência: 915 MHz (ISM band — Brasil/Americas)</li>
+          <li>Alcance: até 10 km (solo) / 15+ km (foguete)</li>
+          <li>Configuração: SF7, BW 125 kHz, CR 4/5, CRC on</li>
+          <li>Potência: +17 dBm (FC) / +20 dBm (Helike)</li>
+          <li>Sincronização: Sync Word 0xF3 (compatível entre projetos)</li>
         </ul>
-        <pre><code class="language-cpp">// Configuracao LoRa tipica
+        <pre><code class="language-cpp">// Configuracao LoRa real (915 MHz, SF7)
 #include &lt;LoRa.h&gt;
 
 void setup() {
   LoRa.setPins(SS, RST, DIO0);
-  LoRa.begin(433E6);     // 433 MHz
-  LoRa.setSpreadingFactor(12);    // alcance maximo
-  LoRa.setCodingRate4(8);         // robustez
-  LoRa.setTxPower(20);            // 20 dBm
+  LoRa.begin(915E6);              // 915 MHz (Brasil)
+  LoRa.setSpreadingFactor(7);     // SF7 (baixa latencia)
+  LoRa.setCodingRate4(5);         // CR 4/5
+  LoRa.setTxPower(17);            // +17 dBm (FC)
+  LoRa.enableCrc();               // CRC habilitado
 }</code></pre>
       </section>
 
@@ -222,7 +216,7 @@ void setup() {
 │                      │ LORA   │                          │
 │  ┌────┐    ┌──────┐  │◄──────►│  ┌──────┐  ┌─────────┐  │
 │  │ FC │───►│ LoRa │  │        │  │ LoRa │─►│ Python  │  │
-│  │    │    │ RFM96│  │        │  │ RFM96│  │ Parsing │  │
+│  │    │    │ RFM95W│  │        │  │ RFM95W│  │ Parsing │  │
 │  │ FSM│    └──────┘  │        │  └──────┘  │ Valid.  │  │
 │  │ TM │              │        │            │ Log CSV │  │
 │  └────┘              │        │            │ Graf.   │  │
@@ -240,7 +234,7 @@ void setup() {
         <pre><code class="language-text">SENSORES
   │
   ▼
-FIRMWARE (FC — Arduino/PlatformIO)
+FIRMWARE (FC — Arduino IDE / Helike — PlatformIO)
   │ coleta, formata, checksum
   ▼
 LINK (LoRa / Serial USB)
@@ -284,6 +278,15 @@ TOMADA DE DECISÃO (próximo lançamento)</code></pre>
           <li>Itere com os revisores</li>
         </ol>
         <p class="objective">Não precisa saber tudo — a gente aprende junto.</p>
+      </section>
+
+      <section>
+        <h2>Repositórios</h2>
+        <ul>
+          <li><strong>Flight Computer:</strong> github.com/ViniciusCMB/flight-computer</li>
+          <li><strong>Helike (Satellite):</strong> github.com/ViniciusCMB/satellite</li>
+          <li><strong>Documentação:</strong> docs/software.md e docs/hardware.md em cada repo</li>
+        </ul>
       </section>
 
       <section>

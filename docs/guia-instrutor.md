@@ -11,146 +11,154 @@ Roteiro para conduzir o treinamento semana a semana.
 | Revisão dos PRs da semana anterior | 30-40 min |
 | Apresentação da próxima semana | 5 min |
 
-## Semana 0 — Onboarding & GitHub
+## Semana 0 - Onboarding & GitHub
 
-**Mini-aula:**
+Mini-aula:
 - O que é git? Clone, add, commit, push, pull
 - Branches: por que usar, como nomear
 - PRs: template, revisão, merge
 - Convenção de commits semânticos
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - Qual a diferença de clone, fork e branch?
 - O que fazer quando dá conflito?
 - Por que commits semânticos?
 
-**Na revisão de PRs:**
+Na revisão de PRs:
 - Confira se a branch segue o padrão
 - Confira o formato do commit
 - Dê feedback sobre a qualidade do README
 
-## Semana 1 — Python básico
+## Semana 1 - Python básico
 
-**Mini-aula:**
+Mini-aula:
 - Leitura de arquivos com open/with
 - csv.DictReader vs Reader
 - List comprehensions para extrair colunas
 - try/except para arquivos e valores
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - O que `with open() as f` garante?
 - Por que `DictReader` é melhor que `split(",")`?
 
-**Na revisão:**
+Na revisão:
 - Tratou arquivo inexistente?
 - Tratou CSV vazio?
 - Usou `sys.argv` para o caminho?
 
-## Semana 2 — Python aplicado
+## Semana 2 - Python aplicado
 
-**Mini-aula:**
+Mini-aula:
 - Parsing de strings: split, strip, validação
 - Separação de responsabilidades: parser vs validador
 - Tipos de erro: formato vs conteúdo
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - Por que parser e validador são funções separadas?
 - O que é um pacote corrompido?
 
-**Na revisão:**
+Na revisão:
 - Parser rejeita formatos inválidos sem crash?
 - Validador cobre todos os campos?
 - Estatísticas no final?
 
-## Semana 3 — Arduino IDE
+## Semana 3 - Arduino IDE
 
-**Mini-aula:**
+Mini-aula:
 - GPIO: pinMode, digitalWrite, analogWrite
 - I2C: endereços, SDA/SCL, pull-ups
 - Serial: baud rate, print vs write
 - millis() sem delay
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - Por que `delay()` atrapalha a taxa de amostragem?
 - O que acontece se o I2C não tiver pull-up?
 
-**Na revisão:**
+Na revisão:
 - Taxa de 20 Hz consistente?
 - LED pisca independente?
 - Formato do pacote correto?
 
-## Semana 4 — PlatformIO
+## Semana 4 - PlatformIO
 
-**Mini-aula:**
+Mini-aula:
 - Estrutura de projeto PlatformIO
 - platformio.ini: ambientes, lib_deps, build_flags
 - Testes nativos com Unity
 - Header-only libraries
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - Por que manter lib/ sem dependência Arduino?
 - Quando usar build_flags vs #define?
 
-**Na revisão:**
+Na revisão:
 - Build sem erros?
 - Testes nativos passam?
 - Organização correta das pastas?
 
-## Semana 5 — Integração
+## Semana 5 - Integração
 
-**Mini-aula:**
+Mini-aula:
 - Comunicação serial bidirecional
 - Buffer serial e overflow
 - Robustez: tratar desconexão, linha corrompida
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - O que acontece se o Python ler mais devagar que o Arduino envia?
 - Como garantir que o CSV não corrompa?
 
-**Na revisão:**
+Na revisão:
 - Pipeline roda 5+ min sem perder pacotes?
 - Parser reaproveitado da Semana 2?
 - CSV limpo + log de erros separado?
 
-## Semana 6 — KiCad
+## Semana 6 - KiCad
 
-**Mini-aula:**
+Mini-aula:
 - Eeschema: símbolos, fios, labels, ERC
 - Pcbnew: posicionamento, roteamento, GND plane
 - BOM e exportação
 
-**Perguntas para discussão:**
+Perguntas para discussão:
 - O que o ERC verifica?
 - Por que usar PWR_FLAG?
 
-**Na revisão:**
+Na revisão:
 - ERC sem erros críticos?
 - Pull-ups I2C presentes?
 - PDF exportado?
 
-## Semana 7 — Projetos reais
+## Semana 7 - Projetos reais
 
-**Mini-aula:**
-- Arquitetura do Flight Computer
-- Arquitetura do Helike
-- Onde cada semana se aplica
+Mini-aula:
+- Arquitetura do Flight Computer (ESP32-S3, FreeRTOS, FSM)
+- Arquitetura do Helike (ESP32-C3, PlatformIO, loop simples)
+- Comparação técnica entre os projetos
+- Onde cada semana do treinamento se aplica
 
-**Perguntas para discussão:**
+Material de apoio:
+- Trilha [Arquitetura de Firmware](trilhas/firmware-architecture.md)
+- Trilha [Sensores e Protocolos](trilhas/sensors.md)
+
+Perguntas para discussão:
 - Quais componentes são comuns entre FC e Helike?
 - O que muda na estratégia de logging entre foguete e satélite?
+- Por que o Helike não usa FreeRTOS?
+- Como o FreeRTOS ajuda no Flight Computer?
 
-**Na revisão:**
+Na revisão:
 - Resumos mostram entendimento da arquitetura?
 - Mapa conceitual conecta semanas aos projetos?
+- Tabela comparativa está completa?
 
-## Semana 8 — Capstone
+## Semana 8 - Capstone
 
-**Mini-aula:**
+Mini-aula:
 - Revisão geral dos conceitos
 - Expectativas para projetos reais
 - Próximos passos
 
-**Avaliação:**
+Avaliação:
 | Critério | Peso |
 |---|---|
 | Pipeline funcional | 40% |

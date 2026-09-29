@@ -1,4 +1,4 @@
-# Exemplo — Python: Leitura e Análise de Telemetria
+# Exemplo - Python: Leitura e Análise de Telemetria
 
 ## Objetivo
 
@@ -8,7 +8,7 @@ Ler um CSV de telemetria, calcular estatísticas e gerar um gráfico.
 
 ```python
 #!/usr/bin/env python3
-"""Leitor de telemetria — calcula estatísticas e gera gráfico."""
+"""Leitor de telemetria - calcula estatísticas e gera gráfico."""
 
 import csv
 import sys
@@ -82,7 +82,7 @@ def main():
         plt.savefig("perfil_voo.png")
         print("Gráfico salvo em perfil_voo.png")
     except ImportError:
-        print(" matplotlib não instalado — gráfico ignorado")
+        print(" matplotlib não instalado - gráfico ignorado")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# Semana 6 — KiCad básico
+# Semana 6 - KiCad básico
 
 ## Objetivo
 
@@ -13,22 +13,22 @@ Criar um esquemático de ESP32-C3 + BMP280 no KiCad e rodar ERC.
 
 ## Problema
 
-### Tarefa 1 — Criar projeto
+### Tarefa 1 - Criar projeto
 
 Crie um novo projeto KiCad: `semana-6-kicad`
 
-### Tarefa 2 — Esquemático
+### Tarefa 2 - Esquemático
 
 No Eeschema, monte o circuito:
 
-**Componentes:**
+Componentes:
 - ESP32-C3 (use um conector ou símbolo genérico de MCU)
 - BMP280 (`Sensor_Temperature:BMP280`)
 - 2 resistores de 10k (pull-up I2C)
 - 1 capacitor de 100nF (desacoplamento)
 - Conector de expansão (opcional)
 
-**Conexões:**
+Conexões:
 - BMP280 VCC → 3.3V
 - BMP280 GND → GND
 - BMP280 SDA → I2C_SDA (label global)
@@ -40,11 +40,11 @@ No Eeschema, monte o circuito:
 - Capacitor 100nF entre 3.3V e GND (próximo ao ESP)
 - PWR_FLAG no 3.3V e no GND
 
-### Tarefa 3 — ERC
+### Tarefa 3 - ERC
 
 Rode o ERC (Inspect → Electrical Rules Check).
 
-**Corrija todos os erros críticos.** Os mais comuns:
+Corrija todos os erros críticos. Os mais comuns:
 
 | Erro | Causa | Solução |
 |---|---|---|
@@ -52,7 +52,7 @@ Rode o ERC (Inspect → Electrical Rules Check).
 | "Input pin not driven" | Pino de entrada solto | Conecte ao net correto |
 | "Pin connected to other pin" | Dois outputs ligados | Revise a conexão |
 
-### Tarefa 4 — Exportar PDF
+### Tarefa 4 - Exportar PDF
 
 Exporte o esquemático como PDF (File → Plot → PDF).
 

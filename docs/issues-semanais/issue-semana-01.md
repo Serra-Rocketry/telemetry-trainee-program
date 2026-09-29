@@ -1,4 +1,4 @@
-# Semana 1 — Python basico
+# Semana 1 - Python basico
 
 ## Objetivo
 

@@ -1,4 +1,4 @@
-# Exemplo — GitHub: Fluxo de PR
+# Exemplo - GitHub: Fluxo de PR
 
 ## Objetivo
 
@@ -37,7 +37,7 @@ git push -u origin maria-silva
 ## Template de PR
 
 ```markdown
-## Semana 0 — Onboarding & GitHub
+## Semana 0 - Onboarding & GitHub
 
 ## O que foi feito
 - [x] README pessoal criado
@@ -52,5 +52,5 @@ git push -u origin maria-silva
 - [x] PR segue template
 
 ## Dificuldades
-- Nenhuma — tranquilo!
+- Nenhuma - tranquilo!
 ```

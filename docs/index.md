@@ -1,6 +1,6 @@
-# Treinamento Telemetria — Página Inicial
+# Treinamento Telemetria - Página Inicial
 
-Bem-vindo ao treinamento do time de telemetria e controle da **Serra Rocketry**.
+Bem-vindo ao treinamento do time de telemetria e controle da Serra Rocketry.
 
 ## Comece aqui
 
@@ -12,15 +12,15 @@ Bem-vindo ao treinamento do time de telemetria e controle da **Serra Rocketry**.
 - [FAQ](faq.md)
 - [Materiais de Consulta](materiais-consulta.md)
 - [Glossário Técnico](glossario.md)
-- [BOM — Componentes](bom.md)
+- [BOM - Componentes](bom.md)
 - [Troubleshooting](troubleshooting.md)
 
 ## Aprendizado
 
-- [Trilhas de Conteúdo](trilhas/README.md) — Python, Arduino, PlatformIO, KiCad, GitHub
-- [Semanas do Treinamento](semanas/README.md) — roteiros semanais com entregas
-- [Slide Decks](slides/README.md) — apresentações para cada semana
-- [Quiz Interativo](quiz/README.md) — autoavaliação
+- [Trilhas de Conteúdo](trilhas/README.md) - Python, Arduino, PlatformIO, KiCad, GitHub
+- [Semanas do Treinamento](semanas/README.md) - roteiros semanais com entregas
+- [Slide Decks](slides/README.md) - apresentações para cada semana
+- [Quiz Interativo](quiz/README.md) - autoavaliação
 - [Issues Semanais (Exemplos)](issues-semanais/README.md)
 - [Exemplos Mínimos](examples/README.md)
 

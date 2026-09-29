@@ -1,4 +1,4 @@
-# Semana X — Titulo da entrega
+# Semana X - Titulo da entrega
 
 ## Objetivo
 

@@ -1,4 +1,4 @@
-# Semana 4 — PlatformIO
+# Semana 4 - PlatformIO
 
 ## Objetivo
 

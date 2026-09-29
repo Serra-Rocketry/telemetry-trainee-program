@@ -17,9 +17,48 @@ O Arduino IDE é a porta de entrada para programação de microcontroladores. Ta
 - Cabo USB-C
 - Jumpers e protoboard
 
+## Fluxo de um Sketch Arduino
+
+```mermaid
+flowchart TD
+    A[Inicio] --> B[setup executa 1x]
+    B --> C[loop infinito]
+    C --> D[Ler sensores]
+    D --> E[Processar dados]
+    E --> F[Enviar serial/LoRa]
+    F --> C
+    
+    style A fill:#ff6b35,color:#fff
+    style B fill:#2ea043,color:#fff
+```
+
+## Diagrama de Conexões ESP32-C3
+
+```
+┌─────────────────────────────────────────┐
+│           ESP32-C3 Super Mini          │
+├─────────────────────────────────────────┤
+│  3.3V ─────┬──────┬──────┐             │
+│  GND  ─────┼──────┼──────┼─────┐       │
+│  GPIO 0 ───┼──────┼──────┼─────┼─ Buzzer
+│  GPIO 1 ───┼──────┼──────┼─────┼─ LED   │
+│  GPIO 2 ───┼──────┼──────┼─────┼─ Botão │
+│  GPIO 4 ───┼──────┼──────┼─────┼─ SDA   │
+│  GPIO 5 ───┼──────┼──────┼─────┼─ SCL   │
+│  GPIO 7 ───┼──────┼──────┼─────┼─ LoRa CS│
+│  GPIO 8 ───┼──────┼──────┼─────┼─ LoRa MISO
+│  GPIO 9 ───┼──────┼──────┼─────┼─ LoRa SCK
+│  GPIO 10 ──┼──────┼──────┼─────┼─ LoRa MOSI
+└─────────────────────────────────────────┘
+        │     │      │      │
+        ▼     ▼      ▼      ▼
+      BMP280  LED  LoRa   Botão
+     (I2C)  (saída) (SPI) (entrada)
+```
+
 ---
 
-## 1. GPIO básico — Blink
+## 1. GPIO básico - Blink
 
 O "Hello World" dos microcontroladores. O Flight Computer usa o LED (GPIO 1) como indicador de status.
 
@@ -88,7 +127,7 @@ void loop() {
 
 ---
 
-## 3. Serial — comunicação com o PC
+## 3. Serial - comunicação com o PC
 
 A serial é o principal canal de debug e coleta de dados.
 
@@ -149,7 +188,7 @@ void loop() {
 
 ---
 
-## 4. I2C — leitura de sensores
+## 4. I2C - leitura de sensores
 
 O I2C é o barramento mais comum nos projetos da Serra Rocketry. Todos os sensores do Flight Computer e Helike usam I2C.
 
@@ -220,9 +259,9 @@ void loop() {
 }
 ```
 
-**No Flight Computer** — O BMP280 é usado para medir altitude e detectar apogeu. O sensor fica no barramento I2C com SDA=GPIO4, SCL=GPIO5.
+No Flight Computer - O BMP280 é usado para medir altitude e detectar apogeu. O sensor fica no barramento I2C com SDA=GPIO4, SCL=GPIO5.
 
-**No Helike** — O BME280 (mesmo protocolo) é usado no barramento I2C com SDA=GPIO8, SCL=GPIO9.
+No Helike - O BME280 (mesmo protocolo) é usado no barramento I2C com SDA=GPIO8, SCL=GPIO9.
 
 ---
 
@@ -251,7 +290,7 @@ void loop() {
 
 ---
 
-## 6. LoRa — telemetria sem fio
+## 6. LoRa - telemetria sem fio
 
 O RFM95W (LoRa) é usado nos dois projetos para transmissão de telemetria.
 
@@ -284,13 +323,13 @@ void loop() {
 }
 ```
 
-**No Helike** — O LoRa está em 915 MHz com SPI nos pinos MOSI=GPIO7, MISO=GPIO5, SCK=GPIO6, CS=GPIO10, RST=GPIO4, DIO0=GPIO3.
+No Helike - O LoRa está em 915 MHz com SPI nos pinos MOSI=GPIO7, MISO=GPIO5, SCK=GPIO6, CS=GPIO10, RST=GPIO4, DIO0=GPIO3.
 
-**No Flight Computer** — SPI nos pinos MOSI=GPIO6, MISO=GPIO8, CLK=GPIO9, CS=GPIO7, RST=GPIO1, DIO0=GPIO2.
+No Flight Computer - SPI nos pinos MOSI=GPIO6, MISO=GPIO8, CLK=GPIO9, CS=GPIO7, RST=GPIO1, DIO0=GPIO2.
 
 ---
 
-## 7. Projeto integrado — sensor + serial + LED
+## 7. Projeto integrado - sensor + serial + LED
 
 Combine tudo que aprendeu:
 
@@ -341,25 +380,25 @@ void loop() {
 
 ## Exercícios práticos
 
-### Nível 1 — GPIO e serial
+### Nível 1 - GPIO e serial
 
 1. Faça um LED piscar a 2 Hz.
 2. Adicione um buzzer que toque quando o botão for pressionado.
 3. Envie "BOOT OK" pela serial ao iniciar.
 
-### Nível 2 — Sensor e aquisição
+### Nível 2 - Sensor e aquisição
 
 1. Faça scan I2C e liste os endereços encontrados.
 2. Leia BMP280 e envie pacotes formatados a 10 Hz.
 3. Adicione validação: não envie pacotes se a altitude for inválida (ex: > 10000 m).
 
-### Nível 3 — Integração
+### Nível 3 - Integração
 
 1. Combine LED (status), BMP280 (dados) e serial (saída) em um único sketch.
 2. Use `millis()` para amostragem a 20 Hz sem bloquear.
 3. Formate a saída como pacote delimitado por `#`.
 
-### Nível 4 — Preparação para projetos reais
+### Nível 4 - Preparação para projetos reais
 
 1. Leia o pinout do Flight Computer e mapeie os pinos dos sensores no config.h.
 2. Simule a FSM de voo: acenda o LED em taxa rápida durante ascensão, lenta durante descida.
@@ -377,6 +416,53 @@ void loop() {
 | Servo PWM | Flight Computer | Disparo do paraquedas |
 | LoRa SPI | Ambos | Telemetria sem fio |
 | millis() sem delay | Ambos | Loop não-bloqueante |
+
+### Pinout real dos projetos
+
+Flight Computer (ESP32-S3 v2.0):
+```text
+GPIO 4  → RST_LORA   (LoRa Reset)
+GPIO 5  → DIO0_LORA  (LoRa Interrupt)
+GPIO 6  → BUZZER_PIN
+GPIO 7  → SERVO_PIN  (Parachute servo PWM)
+GPIO 8  → I2C_SDA    (BMP585 + LSM6DS3)
+GPIO 9  → I2C_SCL    (BMP585 + LSM6DS3)
+GPIO 10 → SS_LORA    (LoRa Chip Select)
+GPIO 14 → SD_CS_PIN  (SD Card Chip Select)
+GPIO 17 → RX_GPS     (UART RX - GPS TX)
+GPIO 18 → TX_GPS     (UART TX - GPS RX)
+```
+
+Helike Satellite (ESP32-C3):
+```text
+GPIO 0  → BUZZER      (Active buzzer)
+GPIO 1  → RESET       (RFM95W LoRa RST)
+GPIO 2  → DIO0        (RFM95W LoRa IRQ)
+GPIO 3  → LED         (Status indicator)
+GPIO 4  → SCK         (SPI Clock)
+GPIO 5  → MISO        (SPI MISO)
+GPIO 6  → MOSI        (SPI MOSI)
+GPIO 7  → NSS         (RFM95W LoRa CS)
+GPIO 8  → SDA         (I2C Data)
+GPIO 9  → SCL         (I2C Clock)
+GPIO 10 → CS_SD       (SD Card CS)
+GPIO 20 → TX_GPS      (UART RX)
+GPIO 21 → RX_GPS      (UART TX)
+```
+
+### Bibliotecas reais usadas
+
+| Biblioteca | Flight Computer | Helike |
+|------------|----------------|--------|
+| Adafruit BMP585 | Barômetro BMP585 | - |
+| Adafruit BME280 | - | Barômetro BME280 |
+| Adafruit BMP280 | Fallback BMP585 | Fallback BME280 |
+| Adafruit LSM6DS3 | IMU LSM6DS3 | - |
+| ICM-20602 | - | IMU ICM-20602 |
+| TinyGPS++ | GPS NEO-8M | GPS NEO-8M |
+| LoRa (sandeepmistry) | RFM95W LoRa | RFM95W LoRa |
+| ESP32Servo | Servo paraquedas | - |
+| FreeRTOS | FlightControlTask | - |
 
 ## Entregas relacionadas
 

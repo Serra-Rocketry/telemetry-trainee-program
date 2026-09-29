@@ -1,4 +1,4 @@
-# Semana 7 — Contexto dos projetos (FC + Helike)
+# Semana 7 - Contexto dos projetos (FC + Helike)
 
 ## Objetivo
 

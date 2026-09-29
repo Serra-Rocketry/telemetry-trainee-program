@@ -1,4 +1,4 @@
-# Exemplo — KiCad: Esquemático Mínimo
+# Exemplo - KiCad: Esquemático Mínimo
 
 ## Objetivo
 

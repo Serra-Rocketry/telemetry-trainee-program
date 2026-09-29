@@ -1,4 +1,4 @@
-# Semana 5 — Integração Arduino ↔ Python
+# Semana 5 - Integração Arduino ↔ Python
 
 ## Objetivo
 
@@ -18,7 +18,7 @@ Fazer o Arduino enviar dados pela serial e o Python receber, parsear e salvar em
 
 ### Lado Arduino
 
-O ESP32-C3 deve enviar pacotes a **20 Hz** no formato:
+O ESP32-C3 deve enviar pacotes a 20 Hz no formato:
 
 ```
 #timestamp_ms;altitude_m;temperatura_C;pressao_hPa;ax;ay;az#
@@ -32,19 +32,19 @@ O ESP32-C3 deve enviar pacotes a **20 Hz** no formato:
 
 Crie um script que:
 
-1. **Conecta** na porta serial onde o ESP32 está
-2. **Lê** linhas continuamente
-3. **Parseia** cada linha com o parser da Semana 2
-4. **Valida** com o validador da Semana 2
-5. **Salva** pacotes válidos em CSV
-6. **Registra** pacotes inválidos em `erros.log`
-7. **Exibe** estatísticas a cada 50 pacotes:
+1. Conecta na porta serial onde o ESP32 está
+2. Lê linhas continuamente
+3. Parseia cada linha com o parser da Semana 2
+4. Valida com o validador da Semana 2
+5. Salva pacotes válidos em CSV
+6. Registra pacotes inválidos em `erros.log`
+7. Exibe estatísticas a cada 50 pacotes:
 
 ```
 [14:30:15] 150 pacotes | 142 OK | 5 parser err | 3 valid rej | 94.7% OK
 ```
 
-**Requisitos de robustez:**
+Requisitos de robustez:
 - Trate desconexão da serial (`serial.SerialException`)
 - Trate linha corrompida sem quebrar o loop
 - Use `serial.timeout` para não travar se o ESP parar de enviar
@@ -53,8 +53,8 @@ Crie um script que:
 ## Dicas
 
 - Descubra a porta: `ls /dev/tty*` no Linux, ou `COM3` no Windows
-- `serial.Serial(porta, 115200, timeout=1)` — timeout de 1s evita travamento
-- `ser.readline()` retorna bytes — use `.decode("utf-8", errors="ignore")` e `.strip()`
+- `serial.Serial(porta, 115200, timeout=1)` - timeout de 1s evita travamento
+- `ser.readline()` retorna bytes - use `.decode("utf-8", errors="ignore")` e `.strip()`
 - Reaproveite as funções `parse_packet()` e `validate_packet()` da Semana 2
 - Para o CSV: abra uma vez no início e escreva cada pacote válido com `csv.writer`
 

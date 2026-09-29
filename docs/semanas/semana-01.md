@@ -1,4 +1,4 @@
-# Semana 1 — Python básico
+# Semana 1 - Python básico
 
 ## Objetivo
 
@@ -15,10 +15,10 @@ Ler um CSV de telemetria, calcular estatísticas e salvar um resumo.
 
 Você recebeu um arquivo CSV com dados de telemetria de um voo de teste. Seu script deve:
 
-1. **Ler** o arquivo CSV — cada linha é uma amostra
-2. **Calcular** para o campo `altitude_m`: média, máximo, mínimo, número de amostras
-3. **Exibir** na tela de forma legível
-4. **Salvar** o resumo em um arquivo `.txt`
+1. Ler o arquivo CSV - cada linha é uma amostra
+2. Calcular para o campo `altitude_m`: média, máximo, mínimo, número de amostras
+3. Exibir na tela de forma legível
+4. Salvar o resumo em um arquivo `.txt`
 
 ## Requisitos
 
@@ -40,8 +40,8 @@ Duracao:        0.20 s
 
 ## Dicas
 
-- `csv.DictReader` retorna um iterador de dicionários — converta para lista se precisar re-percorrer
-- `float()` lança `ValueError` se o valor não for numérico — decida como tratar
+- `csv.DictReader` retorna um iterador de dicionários - converta para lista se precisar re-percorrer
+- `float()` lança `ValueError` se o valor não for numérico - decida como tratar
 - `sys.argv[1]` pega o primeiro argumento depois do nome do script
 - `pathlib.Path.exists()` ou `os.path.exists()` para verificar se o arquivo existe
 

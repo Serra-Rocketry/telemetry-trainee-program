@@ -1,4 +1,4 @@
-# Checklist — Release Candidate
+# Checklist - Release Candidate
 
 ## Conteudo
 

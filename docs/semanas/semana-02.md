@@ -1,4 +1,4 @@
-# Semana 2 — Python aplicado (pacotes)
+# Semana 2 - Python aplicado (pacotes)
 
 ## Objetivo
 
@@ -27,17 +27,17 @@ Exemplo real:
 
 Seu script deve:
 
-### Tarefa 1 — Parser
+### Tarefa 1 - Parser
 
 Função que recebe uma string bruta e retorna um dicionário com os campos tipados.
 
-**Regras do parser:**
+Regras do parser:
 - Rejeitar linhas que não começam/terminam com `#`
 - Rejeitar linhas com número de campos diferente do esperado
 - Rejeitar campos não numéricos (ex: letra onde deveria vir número)
 - Retornar `None` para linhas inválidas (não levantar exceção)
 
-### Tarefa 2 — Validador
+### Tarefa 2 - Validador
 
 Função que recebe o dicionário do parser e valida os ranges físicos:
 
@@ -48,7 +48,7 @@ Função que recebe o dicionário do parser e valida os ranges físicos:
 
 Retorna `True`/`False`.
 
-### Tarefa 3 — Processador
+### Tarefa 3 - Processador
 
 Leia um arquivo linha por linha, aplique parser + validador, e exiba:
 
@@ -56,9 +56,9 @@ Leia um arquivo linha por linha, aplique parser + validador, e exiba:
 Processando...
 Linha 1: OK
 Linha 2: OK
-Linha 3: FALHA (parser) — formato invalido
+Linha 3: FALHA (parser) - formato invalido
 Linha 4: OK
-Linha 5: REJEITADO (validacao) — altitude fora do range
+Linha 5: REJEITADO (validacao) - altitude fora do range
 
 Resumo:
   Total:      100

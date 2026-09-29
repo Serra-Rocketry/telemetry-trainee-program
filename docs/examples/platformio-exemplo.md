@@ -1,4 +1,4 @@
-# Exemplo — PlatformIO: Projeto Estruturado
+# Exemplo - PlatformIO: Projeto Estruturado
 
 ## Objetivo
 

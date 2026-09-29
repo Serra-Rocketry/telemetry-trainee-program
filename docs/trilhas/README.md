@@ -1,14 +1,19 @@
-# Trilhas de Conteudo
+# Trilhas de Conteúdo
 
-Conteudo didatico organizado por tecnologia. Cada trilha ensina conceitos conectados aos projetos reais da Serra Rocketry (Flight Computer e satélite Helike).
+Conteúdo didático organizado por tecnologia. Cada trilha ensina conceitos conectados aos projetos reais da Serra Rocketry (Flight Computer e satélite Helike).
 
 ## Trilhas
 
-- [Python](python.md) — leitura de dados, parsing, validação, análise de séries temporais
-- [Arduino IDE](arduino-ide.md) — GPIO, I2C, serial, servo, LoRa, aquisição de sensores
-- [PlatformIO](platformio.md) — projeto profissional, múltiplos ambientes, testes nativos
-- [KiCad](kicad.md) — esquemático, ERC, PCB, exportação para fabricação
-- [GitHub](github.md) — git, issues, branches, PRs, fluxo de colaboração
+### Fundamentos
+- [Python](python.md) - leitura de dados, parsing, validação, análise de séries temporais
+- [Arduino IDE](arduino-ide.md) - GPIO, I2C, serial, servo, LoRa, aquisição de sensores
+- [PlatformIO](platformio.md) - projeto profissional, múltiplos ambientes, testes nativos
+- [KiCad](kicad.md) - esquemático, ERC, PCB, exportação para fabricação
+- [GitHub](github.md) - git, issues, branches, PRs, fluxo de colaboração
+
+### Avançado (projetos reais)
+- [Arquitetura de Firmware](firmware-architecture.md) - FreeRTOS, FSM, padrões OOP
+- [Sensores e Protocolos](sensors.md) - I2C, SPI, sensores, LoRa
 
 ## Como usar
 
@@ -30,3 +35,5 @@ Conteudo didatico organizado por tecnologia. Cada trilha ensina conceitos conect
 | Arduino IDE | Semanas 3, 5 |
 | PlatformIO | Semana 4 |
 | KiCad | Semana 6 |
+| Arquitetura de Firmware | Semana 7 |
+| Sensores e Protocolos | Semanas 3, 5, 7 |

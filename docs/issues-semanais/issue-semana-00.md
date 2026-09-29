@@ -1,4 +1,4 @@
-# Semana 0 — Onboarding & GitHub
+# Semana 0 - Onboarding & GitHub
 
 ## Objetivo
 
@@ -8,13 +8,13 @@ Preparar ambiente e validar fluxo de PR.
 
 - [ ] Instalar ferramentas (VSCode, Python, Arduino, PlatformIO, KiCad)
 - [ ] Clonar repo e criar branch `nome-sobrenome`
-- [ ] Abrir PR “hello world” com README pessoal
+- [ ] Abrir PR "hello world" com README pessoal
 
 ## Criterios de aceite
 
 - [ ] PR segue template
 - [ ] Branch nomeada corretamente
-- [ ] README explica como executar o “hello”
+- [ ] README explica como executar o "hello"
 
 ## Referencias
 

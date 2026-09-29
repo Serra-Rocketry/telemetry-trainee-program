@@ -1,4 +1,4 @@
-# Semana 0 — Onboarding & GitHub
+# Semana 0 - Onboarding & GitHub
 
 ## Objetivo
 
@@ -50,9 +50,9 @@ Abra um PR da sua branch para `main` seguindo o [template de PR](../../templates
 
 ## Dicas
 
-- `git status` é seu melhor amigo — use antes de qualquer commit
+- `git status` é seu melhor amigo - use antes de qualquer commit
 - `git commit --amend` corrige a mensagem do último commit (só se ainda não deu push)
-- A branch é criada uma vez só — o resto do treinamento você reusa a mesma
+- A branch é criada uma vez só - o resto do treinamento você reusa a mesma
 
 ## Referências
 

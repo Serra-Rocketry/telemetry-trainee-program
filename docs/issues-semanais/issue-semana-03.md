@@ -1,4 +1,4 @@
-# Semana 3 — Arduino IDE
+# Semana 3 - Arduino IDE
 
 ## Objetivo
 

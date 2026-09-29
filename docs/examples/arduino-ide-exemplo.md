@@ -1,4 +1,4 @@
-# Exemplo — Arduino IDE: Sensor + Serial
+# Exemplo - Arduino IDE: Sensor + Serial
 
 ## Objetivo
 
@@ -34,7 +34,7 @@ void setup() {
 void loop() {
     unsigned long now = millis();
 
-    // LED heartbeat — 1 Hz
+    // LED heartbeat - 1 Hz
     digitalWrite(LED_PIN, (now / 500) % 2);
 
     // Amostragem a 20 Hz

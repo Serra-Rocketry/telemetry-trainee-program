@@ -1,4 +1,4 @@
-# Semana 2 — Python aplicado (pacotes)
+# Semana 2 - Python aplicado (pacotes)
 
 ## Objetivo
 
