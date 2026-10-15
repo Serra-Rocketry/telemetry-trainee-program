@@ -1,0 +1,30 @@
+=== RESUMO DE TELEMETRIA ===
+
+ALTITUDE:
+  Media:         606.95
+  Maximo:        900.20
+  Minimo:        120.50
+  Desvio Padrao: 257.24
+  Amostras:      11
+
+TEMP:
+  Media:         20.59
+  Maximo:        25.30
+  Minimo:        15.10
+  Desvio Padrao: 3.53
+  Amostras:      11
+
+PRESSAO:
+  Media:         96397.73
+  Maximo:        101325.00
+  Minimo:        92100.00
+  Desvio Padrao: 3028.92
+  Amostras:      11
+
+VOLTAGE:
+  Media:         4.85
+  Maximo:        5.01
+  Minimo:        4.70
+  Desvio Padrao: 0.10
+  Amostras:      11
+
