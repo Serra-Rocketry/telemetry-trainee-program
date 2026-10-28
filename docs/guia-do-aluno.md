@@ -4,19 +4,22 @@ Este guia explica o fluxo do treinamento e o que se espera de cada entrega.
 
 ## Como funciona
 
-1. Leia a semana atual
-2. Consulte a issue semanal correspondente
-3. Desenvolva na branch `nome-sobrenome`
-4. Abra PR usando o template
-5. Participe da revisao semanal
+1. Faça fork do repositório e clone o seu fork (você trabalha na `main` do fork)
+2. Leia a semana atual e a issue semanal correspondente
+3. Desenvolva dentro de `entregas/<nome-sobrenome>/semana-XX/` (veja o [Padrão de Entregas](padrao-entregas.md))
+4. Abra PR do seu fork para a `main` original usando o template
+5. Participe da revisão semanal; depois do merge, sincronize o fork e siga para a próxima semana
 
 ```mermaid
 flowchart LR
-    A[Semana atual] --> B[Issue semanal]
-    B --> C[Branch nome-sobrenome]
-    C --> D[PR com template]
-    D --> E[Revisao semanal]
+    A[Fork + clonar fork] --> B[Semana atual]
+    B --> C[Issue semanal]
+    C --> D[entregas/nome-sobrenome/semana-XX]
+    D --> E[PR com template]
+    E --> F[Revisao semanal]
 ```
+
+> Regra de ouro: **nunca apague o material do repositório** — você só adiciona arquivos na sua pasta em `entregas/`.
 
 ## Fluxo do Treinamento
 
@@ -48,9 +51,10 @@ graph LR
     S5 --> S6[S6: KiCad]
     S6 --> S7[S7: Projetos reais]
     S7 --> S8[S8: Capstone]
+    S8 --> S9[S9: Chips no Wokwi]
     
     style S0 fill:#8b949e,color:#fff
-    style S8 fill:#ff6b35,color:#fff
+    style S9 fill:#ff6b35,color:#fff
 ```
 
 ## O que você deve entregar
@@ -61,12 +65,14 @@ graph LR
 
 ## Onde encontrar tudo
 
-- Roadmap: [roadmap-8-semanas](roadmap-8-semanas.md)
+- Roadmap: [roadmap](roadmap.md)
+- Entregas: [Padrão de Entregas](padrao-entregas.md)
 - Semanas: [Semanas do Treinamento](semanas/README.md)
 - Issues semanais: [Issues Semanais (Exemplos)](issues-semanais/README.md)
 - Trilhas: [Trilhas de Conteudo](trilhas/README.md)
 - Exemplos: [Exemplos Minimos](examples/README.md)
 - Exemplos Visuais: [Guia Visual](exemplos-visuais.md)
+- Status: [Progresso dos trainees](status.md)
 
 ## Dicas
 

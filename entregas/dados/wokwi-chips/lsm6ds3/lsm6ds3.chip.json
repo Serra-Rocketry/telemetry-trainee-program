@@ -1,0 +1,13 @@
+{
+  "name": "LSM6DS3",
+  "author": "Serra Rocketry - Telemetria",
+  "pins": ["VCC", "GND", "SCL", "SDA"],
+  "controls": [
+    { "id": "accelX", "label": "Accel X (g)", "type": "range", "min": -16, "max": 16, "step": 0.01 },
+    { "id": "accelY", "label": "Accel Y (g)", "type": "range", "min": -16, "max": 16, "step": 0.01 },
+    { "id": "accelZ", "label": "Accel Z (g)", "type": "range", "min": -16, "max": 16, "step": 0.01 },
+    { "id": "gyroX", "label": "Gyro X (dps)", "type": "range", "min": -2000, "max": 2000, "step": 1 },
+    { "id": "gyroY", "label": "Gyro Y (dps)", "type": "range", "min": -2000, "max": 2000, "step": 1 },
+    { "id": "gyroZ", "label": "Gyro Z (dps)", "type": "range", "min": -2000, "max": 2000, "step": 1 }
+  ]
+}

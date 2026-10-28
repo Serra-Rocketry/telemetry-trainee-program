@@ -5,10 +5,12 @@ Repositório de treinamento do time de telemetria, com trilhas, semanas e entreg
 ## Comece aqui
 
 - [Guia do Aluno](docs/guia-do-aluno.md)
-- [Roadmap 8 semanas](docs/roadmap-8-semanas.md)
+- [Padrão de Entregas](docs/padrao-entregas.md)
+- [Roadmap do Treinamento (9 semanas)](docs/roadmap.md)
 - [Calendario](docs/calendario.md)
 - [Pagina inicial (GitHub Pages)](docs/index.md)
 - [Mapa Geral](docs/mapa-geral.md)
+- [Status dos trainees](docs/status.md)
 - [Exemplos Visuais](docs/exemplos-visuais.md)
 
 ## Trilhas de Conteúdo
@@ -28,7 +30,7 @@ Repositório de treinamento do time de telemetria, com trilhas, semanas e entreg
 | Semana | Tema | Entregas |
 |--------|------|----------|
 | 0 | Setup & GitHub | PR "hello world" |
-| 1 | Python básico | CSV + estatísticas |
+| 1 | Python básico (Colab) | pandas + gráficos |
 | 2 | Python aplicado | Parser + validação |
 | 3 | Arduino IDE | Blink + sensor + serial |
 | 4 | PlatformIO | Migração + testes |
@@ -36,13 +38,17 @@ Repositório de treinamento do time de telemetria, com trilhas, semanas e entreg
 | 6 | KiCad | Esquemático + ERC |
 | 7 | Projetos reais | Resumo FC + Helike |
 | 8 | Capstone | Pipeline end-to-end |
+| 9 | Chips personalizados no Wokwi | Simulação do computador de bordo |
 
 ## Padrões de entrega
 
-- Branch: `nome-sobrenome`
+- Fork do repositório (trabalhe na `main` do seu fork)
+- Entrega em `entregas/<nome-sobrenome>/semana-XX/` (sem apagar o material do repo)
 - PR com template preenchido
-- README com instruções de execução
+- README da semana com instruções de execução
 - Commits com tipos semânticos (`feat:`, `fix:`, `docs:`, `test:`)
+
+Detalhes completos no [Padrão de Entregas](docs/padrao-entregas.md).
 
 ## Estrutura
 

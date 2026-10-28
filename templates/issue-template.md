@@ -26,4 +26,5 @@ Explique por que esta tarefa e importante para o fluxo de telemetria.
 
 ## Entregavel
 
-- PR aberto na branch `nome-sobrenome`
+- PR da `main` do seu fork para a `main` original
+- Arquivos dentro de `entregas/<nome-sobrenome>/semana-XX/` (veja o [Padrão de Entregas](../docs/padrao-entregas.md))

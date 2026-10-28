@@ -14,6 +14,7 @@ O treinamento de telemetria da Serra Rocketry prepara novos membros para atuar n
 ### Avançado (projetos reais)
 - Arquitetura de firmware com FreeRTOS e FSM
 - Sensores e protocolos (I2C, SPI, LoRa)
+- Simulação de hardware com custom chips no Wokwi
 - Integração hardware/software
 - Sistemas em tempo real
 
@@ -26,7 +27,7 @@ O treinamento de telemetria da Serra Rocketry prepara novos membros para atuar n
 
 ## Estrutura do treinamento
 
-- 8 semanas de entregas progressivas
+- 9 semanas de entregas progressivas
 - 7 trilhas de conteúdo
 - Issues semanais com critérios claros
 - PRs revisados toda semana
@@ -35,5 +36,5 @@ O treinamento de telemetria da Serra Rocketry prepara novos membros para atuar n
 ## Onde começar
 
 - [Guia do Aluno](guia-do-aluno.md)
-- [Roadmap 8 semanas](roadmap-8-semanas.md)
+- [Roadmap do Treinamento (9 semanas)](roadmap.md)
 - [Trilhas de Conteúdo](trilhas/README.md)

@@ -13,3 +13,4 @@ Exemplos de issues prontas para cada semana.
 - [Semana 6](issue-semana-06.md)
 - [Semana 7](issue-semana-07.md)
 - [Semana 8](issue-semana-08.md)
+- [Semana 9](issue-semana-09.md)

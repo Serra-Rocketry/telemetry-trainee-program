@@ -1,0 +1,9 @@
+{
+  "name": "BMP585",
+  "author": "Serra Rocketry - Telemetria",
+  "pins": ["VCC", "GND", "SCL", "SDA"],
+  "controls": [
+    { "id": "pressure", "label": "Pressao (hPa)", "type": "range", "min": 300, "max": 1100, "step": 0.1 },
+    { "id": "temperature", "label": "Temperatura (C)", "type": "range", "min": -40, "max": 85, "step": 0.1 }
+  ]
+}

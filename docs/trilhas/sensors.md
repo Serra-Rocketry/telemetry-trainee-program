@@ -4,7 +4,7 @@ Esta trilha cobre os sensores e protocolos de comunicação usados nos projetos 
 
 ## O que você vai aprender
 
-- Protocolos I2C e SPI
+- Protocolos UART, I2C, SPI e CAN
 - Sensores barométricos (BMP280, BME280, BMP585)
 - IMUs (MPU6050, ICM-20602, LSM6DS3)
 - GPS (NEO-6M, NEO-8M)
@@ -49,32 +49,79 @@ flowchart LR
 
 ## Protocolos de Comunicação
 
+Um **protocolo de comunicação** é o conjunto de regras que define como os dados viajam entre o microcontrolador e os sensores, memórias e módulos de rádio. Cada protocolo equilibra de forma diferente a velocidade, o número de fios e a facilidade de uso. Nos projetos usamos quatro: **UART**, **I2C**, **SPI** e **CAN**.
+
 ```mermaid
 graph TB
+    subgraph UART_Protocol
+        TX[TX - Transmite]
+        RX[RX - Recebe]
+    end
+
     subgraph I2C_Protocol
         SDA[SDA - Dados]
         SCL[SCL - Clock]
     end
-    
+
     subgraph SPI_Protocol
         MOSI[MOSI]
         MISO[MISO]
         SCK[SCK]
         CS[CS]
     end
-    
-    I2C_Protocol -->|2 fios| MCU1[MCU]
-    SPI_Protocol -->|4 fios| MCU2[MCU]
-    
+
+    subgraph CAN_Protocol
+        CANH[CAN High]
+        CANL[CAN Low]
+    end
+
+    UART_Protocol -->|2 fios| MCU1[MCU]
+    I2C_Protocol -->|2 fios| MCU2[MCU]
+    SPI_Protocol -->|4 fios| MCU3[MCU]
+    CAN_Protocol -->|2 fios + terminacao| MCU4[MCU]
+
     style MCU1 fill:#ff6b35,color:#fff
-    style MCU2 fill:#2ea043,color:#fff
+    style MCU2 fill:#ff6b35,color:#fff
+    style MCU3 fill:#2ea043,color:#fff
+    style MCU4 fill:#2ea043,color:#fff
 ```
+
+### Comparação rápida
+
+| Protocolo | Fios | Velocidade típica | Topologia | Uso no nosso projeto |
+|---|---|---|---|---|
+| UART | 2 (TX, RX) | até ~1 Mbaud | ponto a ponto | GPS (NEO-8M), debug serial |
+| I2C | 2 (SDA, SCL) | 100-400 kHz | barramento (endereços) | barômetro, IMU |
+| SPI | 4 (MOSI, MISO, SCK, CS) | até dezenas de MHz | master + vários slaves (1 CS cada) | LoRa (RFM95W), cartão SD |
+| CAN | 2 (CANH, CANL) | até 1 Mbit/s (clássico) | barramento multi-master | redes robustas (automotiva/aeroespacial) |
 
 ---
 
 ## 1. Protocolos de comunicação
 
-### 1.1 I2C (Inter-Integrated Circuit)
+### 1.1 UART (Universal Asynchronous Receiver/Transmitter)
+
+Comunicação **assíncrona** e **ponto a ponto**: liga dois dispositivos com dois fios - TX (transmite) e RX (recebe) - **cruzados** (TX de um no RX do outro). Não há clock compartilhado: os dois lados combinam antes a mesma velocidade (**baud rate**), como 9600 ou 115200.
+
+Características:
+- Fios: TX (transmite) + RX (recebe), mais um GND comum
+- Sem clock compartilhado - os dois lados usam o mesmo baud rate
+- Ponto a ponto (1 para 1); para vários dispositivos são vários pares de fios
+- Simples e universal - existe em praticamente todo microcontrolador
+
+Uso no projeto:
+- **GPS NEO-8M**: envia sentenças NMEA a 9600 baud
+- **Debug**: o ESP32 conversa com o PC pela USB/serial (o "Serial Monitor")
+
+```cpp
+Serial.begin(9600);            // mesma velocidade no outro lado
+Serial.println("ola");         // TX
+if (Serial.available()) {      // RX
+    char c = Serial.read();
+}
+```
+
+### 1.2 I2C (Inter-Integrated Circuit)
 
 O protocolo mais comum para sensores. Usa apenas 2 fios (SDA + SCL) e suporta múltiplos dispositivos com endereços diferentes.
 
@@ -112,7 +159,7 @@ void scanI2C() {
 }
 ```
 
-### 1.2 SPI (Serial Peripheral Interface)
+### 1.3 SPI (Serial Peripheral Interface)
 
 Protocolo mais rápido, usado para LoRa, SD card e alguns sensores.
 
@@ -131,6 +178,20 @@ SPI nos projetos:
 | RFM95W LoRa | GPIO11 | GPIO13 | GPIO12 | GPIO10 | FC |
 
 Atenção: Helike e FC compartilham SPI entre LoRa e SD Card!
+
+### 1.4 CAN (Controller Area Network)
+
+Barramento **robusto** e **multi-master**, criado para ambientes com muito ruído elétrico (automotiva e aeroespacial). Usa dois fios, **CAN High** e **CAN Low**, com **resistores de terminação** (120 Ω) nas pontas do barramento. Cada mensagem tem um identificador que define a **prioridade**: mensagens mais importantes ganham o barramento primeiro (arbitragem), e todos os nós podem ler o que circula.
+
+Características:
+- Fios: CANH + CANL (+ terminadores de 120 Ω)
+- Robustez: forte detecção de erro e tolerância a falhas
+- Multi-master: qualquer nó pode transmitir; a prioridade vem do ID da mensagem
+- Velocidade: até 1 Mbit/s (CAN clássico), mais no CAN-FD
+
+Onde aparece:
+- Redes de **ECUs** em carros e aeronaves
+- No treinamento focamos em UART/I2C/SPI; o CAN é a base dos barramentos tolerantes a falhas que você verá em sistemas reais de voo
 
 ---
 
@@ -457,6 +518,7 @@ void readAllSensors() {
 | I2C (SDA/SCL) | Ambos | Todos os sensores |
 | SPI (MOSI/MISO/SCK) | Ambos | LoRa + SD Card |
 | UART (GPS) | Ambos | NEO-8M GPS |
+| CAN (CANH/CANL) | Sistemas reais | Barramentos automotivos/aeroespaciais (conceito) |
 | BMP585 | Flight Computer | Barômetro principal |
 | BME280 | Helike | Barômetro + umidade |
 | ICM-20602 | Helike | IMU 6 eixos |
@@ -472,6 +534,7 @@ void readAllSensors() {
 
 ## Referências
 
+- [6 types of communication protocols in embedded systems (OPAL-RT)](https://www.opal-rt.com/blog/6-types-of-communication-protocols-in-embedded-systems/)
 - [I2C Specification](https://assets.nexperia.com/documents/user-manual/UM10204.pdf)
 - [SPI Protocol Overview](https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi/all)
 - [Helike README](https://github.com/ViniciusCMB/satellite/blob/main/README.md)

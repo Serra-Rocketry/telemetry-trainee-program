@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Integrar tudo que aprendeu em um pipeline end-to-end: Arduino gera dados → Python recebe, processa e analisa. Este é o momento de aplicar todo o conteúdo das 8 semanas em um projeto funcional.
+Integrar tudo que aprendeu em um pipeline end-to-end: Arduino gera dados → Python recebe, processa e analisa. Este é o momento de aplicar todo o conteúdo do núcleo do treinamento em um projeto funcional.
 
 ## Preparação
 

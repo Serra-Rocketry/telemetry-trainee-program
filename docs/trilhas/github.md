@@ -4,8 +4,8 @@ GitHub é a plataforma central do treinamento e dos projetos da Serra Rocketry. 
 
 ## O que você vai aprender
 
-- Git básico (clone, add, commit, push, pull)
-- Estratégia de branches do time
+- Git básico (fork, clone, add, commit, push, pull)
+- Trabalhar no fork e manter sincronizado com o repositório original
 - Criar issues com critérios claros
 - Abrir e revisar Pull Requests
 - Colaborar usando o fluxo do GitHub
@@ -14,36 +14,34 @@ GitHub é a plataforma central do treinamento e dos projetos da Serra Rocketry. 
 
 ```mermaid
 flowchart TD
-    A[Clonar repositorio] --> B[Criar branch]
-    B --> C[Desenvolver feature]
-    C --> D[Commit com tipo semantico]
-    D --> E[Push para GitHub]
-    E --> F[Abrir Pull Request]
-    F --> G{Revisao}
-    G -->|Aprovado| H[Merge na main]
-    G -->|Rejeitado| C
-    H --> I[Deletar branch]
-    
+    A[Fork + clonar fork] --> B[Desenvolver na main do fork]
+    B --> C[Commit com tipo semantico]
+    C --> D[Push para GitHub]
+    D --> E[Abrir Pull Request]
+    E --> F{Revisao}
+    F -->|Aprovado| G[Merge na main]
+    F -->|Rejeitado| B
+
     style A fill:#ff6b35,color:#fff
-    style H fill:#2ea043,color:#fff
+    style G fill:#2ea043,color:#fff
 ```
 
-## Estrutura de Branches
+## Estrutura de Repositórios
 
 ```mermaid
 graph LR
-    main[main] --> feature1[nome-sobrenome]
-    main --> feature2[outro-nome]
-    
-    feature1 --> pr1[PR #1]
-    feature2 --> pr2[PR #2]
-    
-    pr1 -->|merge| main
-    pr2 -->|merge| main
-    
-    style main fill:#2ea043,color:#fff
-    style feature1 fill:#ff6b35,color:#fff
-    style feature2 fill:#ff6b35,color:#fff
+    upstream[Serra-Rocketry: main] --> fork1[maria-silva: main]
+    upstream --> fork2[joao-pereira: main]
+
+    fork1 --> pr1[PR #1]
+    fork2 --> pr2[PR #2]
+
+    pr1 -->|merge| upstream
+    pr2 -->|merge| upstream
+
+    style upstream fill:#2ea043,color:#fff
+    style fork1 fill:#ff6b35,color:#fff
+    style fork2 fill:#ff6b35,color:#fff
 ```
 
 ---
@@ -60,8 +58,12 @@ git config --global user.email "seu@email.com"
 ### 1.2 Comandos essenciais
 
 ```bash
-# Clonar o repositório
-git clone https://github.com/Serra-Rocketry/telemetry-trainee-program.git
+# Clonar o SEU fork (veja o passo a passo de fork no Padrão de Entregas)
+git clone https://github.com/<seu-usuario>/telemetry-trainee-program.git
+cd telemetry-trainee-program
+
+# Registrar o repositório original para sincronizar
+git remote add upstream https://github.com/Serra-Rocketry/telemetry-trainee-program.git
 
 # Ver status das alterações
 git status
@@ -74,10 +76,10 @@ git add .  # adiciona tudo
 git commit -m "descrição curta e objetiva do que foi feito"
 
 # Enviar para o GitHub
-git push origin nome-da-branch
+git push origin main
 
-# Atualizar sua branch com a main
-git pull origin main
+# Atualizar sua cópia local com a main do repositório original
+git pull upstream main
 ```
 
 ### 1.3 Mensagens de commit
@@ -134,26 +136,28 @@ teste
 
 ---
 
-## 2. Estratégia de branches
+## 2. Fork e sincronização
 
-No treinamento, cada membro trabalha em sua própria branch:
+Você trabalha na branch `main` do **seu fork** - não é preciso criar uma branch pessoal:
 
 ```
-main
- └── vinicius-souza      # branch pessoal
- └── maria-silva         # branch pessoal
- └── joao-pereira        # branch pessoal
+Serra-Rocketry/telemetry-trainee-program (original, upstream)
+ └── <seu-usuario>/telemetry-trainee-program (seu fork) -> main
 ```
 
 ```bash
-# Criar e trocar para sua branch
-git checkout -b seu-nome-sobrenome
+# Enviar seus commits para o seu fork
+git push origin main
 
-# Enviar a branch para o GitHub
-git push -u origin seu-nome-sobrenome
+# Manter a main do seu fork atualizada com o repositório original
+git checkout main
+git pull upstream main
+git push origin main
 ```
 
-> Regra: nunca commitar diretamente na `main`. Sempre usar branch pessoal e abrir PR.
+> Regra: você só escreve dentro de `entregas/<seu-nome-sobrenome>/`. Nunca edite o material do repositório.
+
+As entregas ficam em `entregas/<seu-nome-sobrenome>/semana-XX/` — veja o [Padrão de Entregas](../padrao-entregas.md).
 
 ---
 
@@ -195,13 +199,13 @@ Exemplo real - Os repositórios Helike e Flight Computer usam issues para planej
 
 ## 4. Pull Requests
 
-O PR é o mecanismo de entrega do treinamento. Toda semana você abre um PR da sua branch para `main`.
+O PR é o mecanismo de entrega do treinamento. Toda semana você abre um PR da `main` do seu fork para a `main` do repositório original.
 
 ### 4.1 Abrindo um PR
 
-1. Faça suas alterações na branch `seu-nome-sobrenome`
-2. Commit e push
-3. No GitHub, clique em "Pull Request"
+1. Faça suas alterações na sua pasta `entregas/seu-nome-sobrenome/semana-XX/`
+2. Commit e push para o seu fork (`git push origin main`)
+3. No GitHub, abra o PR da sua `main` para a `main` do repositório original ("Compare across forks")
 4. Preencha o [template de PR](../../templates/pr-template.md)
 5. Solicite revisão
 
@@ -231,7 +235,7 @@ O PR é o mecanismo de entrega do treinamento. Toda semana você abre um PR da s
 Na revisão semanal, o instrutor (ou um colega) vai revisar seu código:
 
 1. Leia o código - entenda o que foi feito
-2. Teste localmente - checkout na branch e execute
+2. Teste localmente - baixe o fork e execute
 3. Comente - aponte sugestões e perguntas
 4. Aprove ou peça mudanças
 
@@ -244,12 +248,13 @@ Na revisão semanal, o instrutor (ou um colega) vai revisar seu código:
 ```
 1. Instrutor abre issue da semana
 2. Trainee lê a issue e a trilha correspondente
-3. Trainee cria branch "nome-sobrenome" (uma vez só)
-4. Trainee faz as tarefas, commit e push
-5. Trainee abre PR usando o template
-6. Instrutor revisa no encontro semanal
-7. PR é aprovado e mergeado
-8. Avança para a próxima semana 🚀
+3. Trainee faz fork e clona o fork (uma vez só)
+4. Trainee cria a pasta entregas/nome-sobrenome/semana-XX/ e faz as tarefas
+5. Trainee faz commit e push na main do fork
+6. Trainee abre PR do fork para a main, usando o template
+7. Instrutor revisa no encontro semanal
+8. PR é aprovado e mergeado
+9. Na próxima semana, trainee sincroniza o fork e abre uma nova PR 🚀
 ```
 
 ---
@@ -271,15 +276,15 @@ Os projetos podem usar Projects para acompanhar o progresso:
 
 1. Crie sua conta GitHub (se não tiver).
 2. Configure git local (nome, email).
-3. Clone este repositório.
-4. Crie sua branch `seu-nome-sobrenome`.
+3. Faça um **fork** do repositório e clone o seu fork.
 
 ### Nível 2 - Primeira entrega
 
-1. Adicione um arquivo `README.md` na raiz com seu nome e objetivos.
-2. Commit com mensagem descritiva.
-3. Push para sua branch.
-4. Abra um PR para `main` usando o template.
+1. Crie a pasta `entregas/seu-nome-sobrenome/semana-00/`.
+2. Adicione dois arquivos: um `README.md` (na pasta pessoal, com seu nome e objetivos) e um `hello.py` (na pasta da semana).
+3. Commit com mensagem descritiva.
+4. Push para a `main` do seu fork.
+5. Abra um PR para `main` usando o template.
 
 ### Nível 3 - Colaboração
 
@@ -290,7 +295,7 @@ Os projetos podem usar Projects para acompanhar o progresso:
 
 ### Nível 4 - Resolução de conflitos
 
-1. Simule um conflito: dois trainees editam a mesma linha em branches diferentes.
+1. Simule um conflito: duas pessoas editam a mesma linha em pontos diferentes.
 2. Resolva o conflito no PR (resolve no GitHub ou localmente).
 3. Complete o merge.
 
@@ -298,13 +303,15 @@ Os projetos podem usar Projects para acompanhar o progresso:
 
 ## Entregas relacionadas
 
-- [Semana 0](../semanas/semana-00.md): Setup + PR "hello world"
-- Todas as semanas: PR com entrega semanal
+- [Semana 0](../semanas/semana-00.md): fork, setup + estrutura `entregas/` + PR "hello world"
+- Todas as semanas: PR com entrega em `entregas/<nome-sobrenome>/semana-XX/`
 
 ## Critérios de aceite
 
-- Branch nomeada como `nome-sobrenome`
+- Fork criado na sua conta
+- Entrega em `entregas/nome-sobrenome/semana-XX/` (sem apagar o material do repo)
+- PR da `main` do fork para a `main` original
 - PR segue o template
-- README com instruções
+- README da semana com instruções
 - Commits com mensagens claras
 - Participou da revisão de PR

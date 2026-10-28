@@ -13,3 +13,4 @@ Teste seu conhecimento antes de começar cada semana. Selecione as respostas e v
 | 6 | [KiCad](semana-06.html) |
 | 7 | [Flight Computer & Helike](semana-07.html) |
 | 8 | [Capstone (revisão geral)](semana-08.html) |
+| 9 | [Chips personalizados no Wokwi](semana-09.html) |

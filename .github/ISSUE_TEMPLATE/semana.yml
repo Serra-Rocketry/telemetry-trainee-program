@@ -7,6 +7,8 @@ body:
       value: |
         ## Semana X — Nome da Semana
 
+        A entrega vai em `entregas/<nome-sobrenome>/semana-XX/` — veja o [Padrão de Entregas](/docs/padrao-entregas.md).
+
   - type: textarea
     id: objetivo
     attributes:
@@ -36,6 +38,7 @@ body:
       placeholder: |
         - [ ] Código executa sem erros
         - [ ] README atualizado
+        - [ ] Arquivos em entregas/nome-sobrenome/semana-XX/
 
   - type: textarea
     id: referencias

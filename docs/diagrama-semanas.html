@@ -26,7 +26,7 @@ td { padding: 8px 12px; border: 1px solid #30363d; color: #8b949e; }
 <div class="wrapper">
   <a class="back" href="index.html">← Voltar</a>
   <h1>Diagrama do Treinamento</h1>
-  <p class="subtitle">Fluxo das 8 semanas e conexão com os projetos reais.</p>
+  <p class="subtitle">Fluxo das 9 semanas e conexão com os projetos reais.</p>
 
   <div class="mermaid-wrap">
     <pre class="mermaid">
@@ -41,6 +41,7 @@ graph TD
         S6["Semana 6 - KiCad"]
         S7["Semana 7 - Projetos Reais"]
         S8["Semana 8 - Capstone"]
+        S9["Semana 9 - Chips no Wokwi"]
     end
 
     subgraph Projetos
@@ -54,6 +55,7 @@ graph TD
     S5 --> S8
     S6 --> S8
     S7 --> S8
+    S8 --> S9
 
     S0 -.->|fluxo git| FC
     S0 -.->|fluxo git| HELIKE
@@ -65,6 +67,7 @@ graph TD
     S4 -.->|estrutura PIO| HELIKE
     S5 -.->|pipeline telemetria| FC
     S6 -.->|PCB| HELIKE
+    S9 -.->|sensores e firmware| FC
 
     style Treinamento fill:#1c2333,stroke:#ff6b35,color:#e6edf3
     style Projetos fill:#1c2333,stroke:#2ea043,color:#e6edf3
@@ -85,6 +88,7 @@ graph TD
     <tr><td>6</td><td>KiCad: esquematico, ERC</td><td>CDB do Helike</td></tr>
     <tr><td>7</td><td>Arquitetura de sistemas</td><td>Visao geral de ambos</td></tr>
     <tr><td>8</td><td>Pipeline completo</td><td>Sintese de tudo</td></tr>
+    <tr><td>9</td><td>Custom chips, I2C, UART</td><td>Sensores do Flight Computer no Wokwi</td></tr>
   </table>
 </div>
 </body>

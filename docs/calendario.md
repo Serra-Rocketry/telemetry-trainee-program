@@ -1,4 +1,4 @@
-# Calendario do Treinamento (8 semanas)
+# Calendario do Treinamento (9 semanas)
 
 > Preencha as datas reais antes de publicar.
 
@@ -13,3 +13,4 @@
 | 6 | KiCad básico | Esquemático + ERC | _definir data_ |
 | 7 | Contexto projetos | Resumo FC + Helike | _definir data_ |
 | 8 | Capstone | Pipeline end-to-end | _definir data_ |
+| 9 | Chips personalizados no Wokwi | Simulação do computador de bordo | _definir data_ |

@@ -4,7 +4,7 @@
 
 - [Guia do Aluno](guia-do-aluno.md)
 - [Visao Geral](visao-geral.md)
-- [Roadmap 8 semanas](roadmap-8-semanas.md)
+- [Roadmap do Treinamento (9 semanas)](roadmap.md)
 - [Calendario](calendario.md)
 
 ## Conteudo principal
@@ -16,8 +16,10 @@
 
 ## Padroes e suporte
 
+- [Padrão de Entregas](padrao-entregas.md)
+- [Status dos Trainees](status.md)
 - [Boas Praticas de PR](boas-praticas-pr.md)
-- [Padrao de Branches e PRs](padrao-branches-prs.md)
+- [Padrao de PRs](padrao-branches-prs.md)
 - [FAQ](faq.md)
 - [Guia do Instrutor](guia-instrutor.md)
 

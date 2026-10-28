@@ -1,14 +1,20 @@
-# Padrao de Branches e PRs
+# Padrao de PRs
 
-## Branches
+## Fork e branch
 
-- Formato: `nome-sobrenome`
-- Exemplo: `joao-silva`
+- Trabalhe na branch `main` do seu fork (nao e preciso criar branch pessoal)
+- Sincronize com o repositorio original antes de cada semana:
+
+```bash
+git checkout main
+git pull upstream main
+git push origin main
+```
 
 ## Titulo do PR
 
 - Formato: `semana-XX: resumo curto`
-- Exemplo: `semana-01: parser csv basico`
+- Exemplo: `semana-01: leitura e analise do csv`
 
 ## Descricao do PR
 

@@ -15,8 +15,10 @@ Roteiro para conduzir o treinamento semana a semana.
 
 Mini-aula:
 - O que é git? Clone, add, commit, push, pull
-- Branches: por que usar, como nomear
+- Fork vs clone: por que cada trainee trabalha no próprio fork
+- Fluxo: trabalhar na `main` do fork e abrir PR para o repositório original
 - PRs: template, revisão, merge
+- Estrutura de entregas: `entregas/nome-sobrenome/semana-XX/`
 - Convenção de commits semânticos
 
 Perguntas para discussão:
@@ -25,9 +27,15 @@ Perguntas para discussão:
 - Por que commits semânticos?
 
 Na revisão de PRs:
-- Confira se a branch segue o padrão
+- Confira se o fork e a pasta `entregas/nome-sobrenome/` seguem o padrão
+- Confira se o material do repositório não foi apagado
 - Confira o formato do commit
 - Dê feedback sobre a qualidade do README
+
+Rotina do mentor ao mergear:
+- Use a checklist "Na revisão" da semana correspondente (mais abaixo)
+- Aprove e faça o merge do PR
+- O `docs/status.md` é atualizado automaticamente após o merge
 
 ## Semana 1 - Python básico
 
@@ -166,10 +174,39 @@ Avaliação:
 | Documentação | 20% |
 | Organização | 15% |
 
+## Semana 9 - Chips personalizados no Wokwi
+
+Mini-aula:
+- O que é um custom chip do Wokwi (`chip.json` + `chip.c`, Chips API)
+- Como adicionar um custom chip ao projeto e conferir o Chips Console
+- I2C por registradores (`Wire`) versus bibliotecas de sensor
+- UART e sentenças NMEA do GPS
+- Conversão pressão → altitude e o pacote de 16 campos
+
+Perguntas para discussão:
+- Por que simular os sensores antes de montar a placa?
+- Por que o chip simulado não funciona com a biblioteca do fabricante?
+- O que acontece nos pacotes entre duas atualizações do GPS?
+- Como validar que o firmware não está perdendo amostras?
+
+Na revisão:
+- Projeto montado do zero com os três chips e link compartilhado?
+- Pacotes a 10 Hz no formato de 16 campos?
+- Log com 5+ minutos e parser gerando `dados_tratados.csv`?
+- Gráficos no Colab e README com os links?
+
 ## Checklist rápido do revisor
 
+- [ ] PR vem de um fork (da `main` do trainee)
+- [ ] Entrega em `entregas/<nome-sobrenome>/semana-XX/` (material do repo intacto)
 - [ ] PR segue o template
 - [ ] Commits com tipos semânticos
-- [ ] Entrega atende o objetivo
-- [ ] README explica como reproduzir
+- [ ] Entrega atende o objetivo da semana
+- [ ] README da semana explica como reproduzir
 - [ ] Código organizado e legível
+
+## Referências
+
+- [Padrão de Entregas](padrao-entregas.md)
+- [Guia do Aluno](guia-do-aluno.md)
+- [Status dos trainees](status.md)

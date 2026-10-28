@@ -1,4 +1,4 @@
-# Roadmap Treinamento Telemetria (8 semanas)
+# Roadmap Treinamento Telemetria (9 semanas)
 
 ## Formato semanal (fixo)
 
@@ -17,8 +17,9 @@ Trilha principal: [GitHub](trilhas/github.md)
 
 Entregas (issues):
 - Setup (VSCode, Python, Arduino, PlatformIO, KiCad)
-- Clonar repo + criar branch `nome-sobrenome`
-- PR "hello world" + README pessoal
+- Fork do repo + clone do fork
+- Criar a estrutura `entregas/<nome-sobrenome>/semana-00/`
+- PR "hello world" + README pessoal (dentro de `entregas/`)
 
 Extra (opcional):
 - Checklist de leitura rápida (documentação do time)
@@ -27,16 +28,17 @@ Extra (opcional):
 
 ## Semana 1 - Python básico (telemetria)
 
-Objetivo: Processar dados de telemetria em CSV.
+Objetivo: Processar dados de telemetria em CSV no Google Colab.
 
 Trilha principal: [Python](trilhas/python.md)
 
 Entregas (issues):
-- Script lê CSV de telemetria e imprime estatísticas
-- Salvar resumo em arquivo
+- Notebook `semana-01` no Colab com o CSV tratado em pandas
+- Gráficos de aceleração, velocidade e altitude
+- Link público do Colab
 
 Extra (opcional):
-- Gráfico simples (matplotlib)
+- Norma da aceleração e gráficos de temperatura/pressão
 
 Conexão com projetos reais: Análise pós-voo do Flight Computer e Helike.
 
@@ -161,6 +163,23 @@ Roteiro detalhado: [Semana 8](semanas/semana-08.md)
 
 ---
 
+## Semana 9 - Chips personalizados no Wokwi (simulação)
+
+Objetivo: Simular o computador de bordo com os custom chips do repositório e fechar o ciclo de telemetria.
+
+Pré-requisitos: Semanas 0 a 8 (reaproveita as Semanas 1, 2 e 3)
+
+Entregas (issues):
+- Projeto no Wokwi com ESP32-S3 + BMP585 + LSM6DS3 + NEO-8M montado do zero
+- Firmware lendo os três chips e enviando pacotes a 10 Hz
+- `log_wokwi.txt` com 5+ minutos de simulação
+- Parser adaptado gerando `dados_tratados.csv`
+- Gráficos no Colab a partir do CSV tratado
+
+Roteiro detalhado: [Semana 9](semanas/semana-09.md)
+
+---
+
 ## Referências das Semanas
 
 | Semana | Roteiro |
@@ -174,3 +193,4 @@ Roteiro detalhado: [Semana 8](semanas/semana-08.md)
 | 6 | [semana-06.md](semanas/semana-06.md) |
 | 7 | [semana-07.md](semanas/semana-07.md) |
 | 8 | [semana-08.md](semanas/semana-08.md) |
+| 9 | [semana-09.md](semanas/semana-09.md) |

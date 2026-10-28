@@ -18,8 +18,10 @@ Uma frase sobre por que isso importa para telemetria.
 - [ ] Entrega funciona
 - [ ] README atualizado
 - [ ] Output demonstrado
+- [ ] Arquivos em `entregas/<nome-sobrenome>/semana-XX/`
 
 ## Referencias
 
+- [Padrão de Entregas](../docs/padrao-entregas.md)
 - Link para trilha
 - Link para exemplo minimo

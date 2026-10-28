@@ -10,7 +10,7 @@ Período: \_\_\_\_\_\_\_\_\_\_ a \_\_\_\_\_\_\_\_\_\_
 
 ---
 
-Concluiu com êxito o programa de treinamento de 8 semanas da equipe de Telemetria e Controle da Serra Rocketry.
+Concluiu com êxito o programa de treinamento de 9 semanas da equipe de Telemetria e Controle da Serra Rocketry.
 
 ## Competências adquiridas
 

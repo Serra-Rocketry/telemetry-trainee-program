@@ -358,4 +358,4 @@ def parse_helike_packet(line):
 - Código executa sem erros
 - Output legível e documentado
 - README com instruções de execução
-- Código no repositório pessoal (branch `nome-sobrenome`)
+- Código no repositório pessoal (`entregas/<nome-sobrenome>/semana-XX/`)

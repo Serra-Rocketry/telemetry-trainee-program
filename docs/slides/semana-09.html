@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana 09 — Chips personalizados no Wokwi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
+  <style>
+    .reveal { font-family: 'Inter', sans-serif; }
+    .reveal h1 { color: #ff6b35; }
+    .reveal h2 { color: #ff6b35; }
+    .reveal h3 { color: #e6edf3; }
+    .reveal code { background: #1c2333; padding: 2px 8px; border-radius: 4px; }
+    .reveal pre code { background: #1c2333; padding: 16px; border-radius: 8px; max-height: 500px; }
+    .reveal .subtitle { color: #8b949e; font-size: 0.7em; margin-top: 20px; }
+    .reveal .objective { color: #8b949e; font-size: 0.6em; }
+    .reveal ul { list-style: none; }
+    .reveal ul li::before { content: "\25B8 "; color: #ff6b35; }
+    .reveal .check { color: #2ea043; }
+    .reveal section { text-align: left; }
+    .reveal .center { text-align: center; }
+    .reveal table { font-size: 0.6em; }
+    .reveal th, .reveal td { border-color: #30363d; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Semana 09</h1>
+        <h2>Chips personalizados no Wokwi</h2>
+        <p class="subtitle">Simulando o computador de bordo sem o hardware físico</p>
+      </section>
+
+      <section>
+        <h2>Objetivos de Aprendizado</h2>
+        <ul>
+          <li>Adicionar <strong>custom chips</strong> a um projeto do Wokwi</li>
+          <li>Ler sensores I2C por registradores (<code>Wire</code>)</li>
+          <li>Ler NMEA de um GPS por UART (<code>Serial1</code>)</li>
+          <li>Converter pressão em altitude no firmware</li>
+          <li>Reaproveitar o parser e a análise das Semanas 1 e 2</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Por que simular?</h2>
+        <ul>
+          <li>Validar o firmware <strong>antes</strong> de montar a placa</li>
+          <li>Testar o pipeline de telemetria sem risco de queimar hardware</li>
+          <li>Reproduzir cenários: subida, temperatura, movimento do GPS</li>
+          <li>Mesmo firmware, mesmos endereços I2C e mesma UART do projeto real</li>
+        </ul>
+        <pre><code class="language-text">chips -> firmware -> log cru -> parser -> CSV -> graficos</code></pre>
+      </section>
+
+      <section>
+        <h2>O que é um custom chip?</h2>
+        <p>Um componente simulado escrito na <strong>Chips API</strong> (C → WebAssembly).</p>
+        <ul>
+          <li><code>&lt;nome&gt;.chip.json</code> — nome, pinos e controles (sliders)</li>
+          <li><code>&lt;nome&gt;.chip.c</code> — a lógica: registradores I2C, NMEA UART etc.</li>
+        </ul>
+        <p class="objective">Os arquivos desta semana ficam em <code>entregas/dados/wokwi-chips/</code></p>
+      </section>
+
+      <section>
+        <h2>Os três chips da semana</h2>
+        <table>
+          <tr><th>Chip</th><th>Pasta</th><th>Interface</th><th>Endereço / Baud</th></tr>
+          <tr><td>BMP585</td><td><code>bmp585/</code></td><td>I2C</td><td><code>0x7E</code></td></tr>
+          <tr><td>LSM6DS3</td><td><code>lsm6ds3/</code></td><td>I2C</td><td><code>0x6B</code></td></tr>
+          <tr><td>NEO-8M</td><td><code>neo-8m/</code></td><td>UART</td><td><code>9600</code></td></tr>
+        </table>
+        <p class="objective">São os sensores do Flight Computer (ESP32-S3).</p>
+      </section>
+
+      <section>
+        <h2>Ligação dos pinos</h2>
+        <table>
+          <tr><th>Sensor</th><th>Sinal</th><th>ESP32-S3</th></tr>
+          <tr><td>BMP585</td><td>SDA / SCL</td><td>GPIO 8 / GPIO 9</td></tr>
+          <tr><td>LSM6DS3</td><td>SDA / SCL</td><td>GPIO 8 / GPIO 9</td></tr>
+          <tr><td>NEO-8M</td><td>TX / RX</td><td>GPIO 17 / GPIO 18</td></tr>
+          <tr><td>Todos</td><td>VCC / GND</td><td>3.3V / GND</td></tr>
+        </table>
+        <p class="objective">Os dois sensores I2C compartilham o barramento; o GPS usa <code>Serial1</code>.</p>
+      </section>
+
+      <section>
+        <h2>Adicionando os chips</h2>
+        <ol>
+          <li>Crie um projeto <strong>ESP32-S3</strong> no Wokwi</li>
+          <li>Clique no <strong>+</strong> → <strong>Custom Chip</strong></li>
+          <li>Nome <code>bmp585</code>, linguagem <strong>C</strong> (repita para <code>lsm6ds3</code> e <code>neo-8m</code>)</li>
+          <li>Substitua os arquivos gerados pelos do repositório</li>
+          <li>Ligue os pinos e confira o <strong>Chips Console</strong></li>
+        </ol>
+        <pre><code class="language-text">BMP585 pronto (I2C 0x7E)
+LSM6DS3 pronto (I2C 0x6B)
+NEO-8M pronto: lat=-22.94 lon=-43.20 alt=700.0</code></pre>
+        <p class="objective">Monte do zero: o <code>diagram-exemplo.json</code> é só conferência.</p>
+      </section>
+
+      <section>
+        <h2>Firmware: três sensores, três caminhos</h2>
+        <pre><code class="language-cpp">Wire.begin(8, 9);                  // I2C: BMP585 + LSM6DS3
+Serial.begin(115200);              // log
+Serial1.begin(9600, SERIAL_8N1, 17, 18);  // GPS</code></pre>
+        <ul>
+          <li>I2C: escreve o endereço do registrador, lê N bytes</li>
+          <li>UART: acumula caracteres até <code>\n</code> e interpreta NMEA</li>
+          <li>Loop a 10 Hz sem <code>delay()</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>BMP585: pressão → altitude</h2>
+        <pre><code class="language-cpp">Wire.beginTransmission(0x7E);
+Wire.write(0x20);                     // PRESS_XLSB
+Wire.endTransmission(false);
+Wire.requestFrom((uint8_t)0x7E, (uint8_t)3);
+
+int32_t p = buf[0] | (buf[1] &lt;&lt; 8) | (buf[2] &lt;&lt; 16);
+float pressao = (p / 64.0f) / 100.0f; // Pa -> hPa
+float alt = 44330.0f * (1.0f - powf(pressao / 1013.25f, 0.1903f));</code></pre>
+        <p class="objective">Pressão no controle do chip → altitude calculada no firmware.</p>
+      </section>
+
+      <section>
+        <h2>LSM6DS3: aceleração e giro</h2>
+        <pre><code class="language-cpp">// +-2 g e 250 dps (configuracao inicial do chip simulado)
+const float SENS_G   = 0.000061f;
+const float SENS_DPS = 0.00875f;
+
+// OUTX_L_XL (0x28): 6 bytes = X, Y, Z (little-endian)
+ax = (int16_t)(buf[0] | (buf[1] &lt;&lt; 8)) * SENS_G;
+ay = (int16_t)(buf[2] | (buf[3] &lt;&lt; 8)) * SENS_G;
+az = (int16_t)(buf[4] | (buf[5] &lt;&lt; 8)) * SENS_G;</code></pre>
+        <p class="objective">Em repouso, <code>az ≈ 1 g</code>.</p>
+      </section>
+
+      <section>
+        <h2>NEO-8M: NMEA do GPS</h2>
+        <pre><code class="language-text">$GPGGA,000015.00,2256.60,S,04312.00,W,1,09,0.9,700.0,M,0.0,M,,*XX</code></pre>
+        <ul>
+          <li>Campo 6 = qualidade do fix (<code>0</code> = sem fix)</li>
+          <li>Campos 2/4 = latitude/longitude em <code>ddmm.mmmm</code></li>
+          <li>Campo 7 = satélites; campo 9 = altitude</li>
+          <li>Chega a 1 Hz; o pacote sai a 10 Hz com o último valor válido</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Formato do pacote</h2>
+        <p>16 campos, vírgula, prefixo <code>#51</code>:</p>
+        <pre><code class="language-text">#51,millis,pckt,alt,temp,press,gx,gy,gz,ax,ay,az,gps_alt,lat,lon,sat</code></pre>
+        <pre><code class="language-text">#51,15234,152,540.12,25.03,950.00,0.12,-0.03,0.01,0.02,-0.01,1.00,700.0,-22.943200,-43.200000,9</code></pre>
+        <p class="objective">Subconjunto do pacote de 24 campos do computador de bordo — mesmo parser, menos colunas.</p>
+      </section>
+
+      <section>
+        <h2>Simular e capturar o log</h2>
+        <ol>
+          <li>Rode a simulação e abra o Serial Monitor em <strong>115200</strong></li>
+          <li>Deixe <strong>5 minutos</strong> rodando (≈ 3.000 pacotes)</li>
+          <li>Mova os controles: pressão 1013 → 950 → 800 hPa</li>
+          <li>Altere a aceleração/giro e a posição do GPS</li>
+          <li>Copie a saída e salve como <code>log_wokwi.txt</code></li>
+        </ol>
+        <p class="objective">Linhas <code>[INFO]</code> e <code>[ERRO]</code> podem ficar no log: o parser ignora.</p>
+      </section>
+
+      <section>
+        <h2>Parser: só mudam as colunas</h2>
+        <pre><code class="language-python">COLUNAS = ["ID", "millis", "pckt", "alt", "temp", "press",
+           "gx", "gy", "gz", "ax", "ay", "az",
+           "gps_alt", "lat", "lon", "sat"]
+
+def parse_packet(linha):
+    linha = linha.strip()
+    if not linha.startswith("#51,"):
+        return None
+    campos = linha.split(",")
+    if len(campos) != 16:
+        return None
+    ...</code></pre>
+        <p class="objective">Rejeite 15 ou 17 campos, linhas de meta e valores não numéricos.</p>
+      </section>
+
+      <section>
+        <h2>Análise no Colab</h2>
+        <pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv("dados_tratados.csv")
+df["tempo_s"] = (df["millis"] - df["millis"].min()) / 1000
+
+df.plot(x="tempo_s", y=["alt", "gps_alt"])
+df.plot(x="tempo_s", y=["ax", "ay", "az"])
+df.plot(x="tempo_s", y=["press", "temp"])</code></pre>
+        <p class="objective">Compare a altitude do barômetro com a do GPS.</p>
+      </section>
+
+      <section>
+        <h2>Cuidados</h2>
+        <ul>
+          <li>O BMP585 simulado <strong>não</strong> usa a biblioteca Adafruit — leia registradores</li>
+          <li>Endereços diferentes do datasheet: <code>0x7E</code> e <code>0x6B</code> (ajustáveis)</li>
+          <li>UART do GPS é 9600; o monitor é 115200</li>
+          <li><code>strtok()</code> altera a string — trabalhe numa cópia</li>
+          <li>Sem fix, lat/lon ficam em zero até o primeiro <code>GPGGA</code> válido</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Entrega da semana</h2>
+        <pre><code class="language-text">entregas/seu-nome/semana-09/
+├── README.md
+├── sketch.ino
+├── log_wokwi.txt
+├── parser.py
+├── dados_tratados.csv
+└── evidencias/graficos.png</code></pre>
+        <ul>
+          <li>Link do projeto no Wokwi e do notebook no Colab</li>
+          <li>PR com o template preenchido</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Resumo &amp; Conclusão</h2>
+        <ul>
+          <li>Custom chips reproduzem os sensores reais no Wokwi</li>
+          <li>Firmware lê I2C e UART e gera telemetria a 10 Hz</li>
+          <li>Log cru → parser → CSV tratado → gráficos</li>
+          <li>Pipeline validado antes de tocar no hardware</li>
+        </ul>
+        <p class="subtitle">Próximo passo: levar esse firmware para a bancada e para os projetos reais.</p>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+  <script>Reveal.initialize({ hash: true, slideNumber: true, width: 1200, height: 800, margin: 0.05, minScale: 0.5, maxScale: 1.5 });</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "author": "Serra Rocketry - Telemetria",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-s3-devkitc-1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "chip-bmp585",
+      "id": "bmp585",
+      "top": -150,
+      "left": 320,
+      "attrs": { "pressure": 1013.25, "temperature": 25, "address": 126 }
+    },
+    {
+      "type": "chip-lsm6ds3",
+      "id": "lsm6ds3",
+      "top": 30,
+      "left": 320,
+      "attrs": { "accelX": 0, "accelY": 0, "accelZ": 1, "gyroX": 0, "gyroY": 0, "gyroZ": 0, "address": 107 }
+    },
+    {
+      "type": "chip-neo-8m",
+      "id": "gps",
+      "top": 210,
+      "left": 320,
+      "attrs": { "latitude": -22.9432, "longitude": -43.2, "altitude": 700 }
+    }
+  ],
+  "connections": [
+    ["esp:3V3.1", "bmp585:VCC", "red", []],
+    ["esp:3V3.2", "lsm6ds3:VCC", "red", []],
+    ["esp:3V3.1", "gps:VCC", "red", []],
+    ["esp:GND.1", "bmp585:GND", "black", []],
+    ["esp:GND.2", "lsm6ds3:GND", "black", []],
+    ["esp:GND.3", "gps:GND", "black", []],
+    ["esp:9", "bmp585:SCL", "green", []],
+    ["esp:9", "lsm6ds3:SCL", "green", []],
+    ["esp:8", "bmp585:SDA", "green", []],
+    ["esp:8", "lsm6ds3:SDA", "green", []],
+    ["esp:17", "gps:TX", "green", []],
+    ["esp:18", "gps:RX", "green", []]
+  ]
+}

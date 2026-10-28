@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Semana 01 — Python Básico</title>
+  <title>Semana 01 — Python Básico (Colab)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/night.min.css">
   <style>
@@ -28,200 +28,144 @@
 
       <section>
         <h1>Semana 01</h1>
-        <h2>Python Básico</h2>
-        <p class="subtitle">Manipulação de dados com Python padrão</p>
+        <h2>Python Básico no Colab</h2>
+        <p class="subtitle">Análise de telemetria com pandas, no navegador</p>
       </section>
 
       <section>
         <h2>Objetivos de Aprendizado</h2>
         <ul>
-          <li>Ler arquivos CSV usando <code>csv.DictReader</code></li>
-          <li>Calcular estatísticas básicas (média, max, min)</li>
-          <li>Salvar resumo em arquivo de texto</li>
-          <li>Criar gráficos simples com matplotlib</li>
+          <li>Usar o Google Colab para analisar dados</li>
+          <li>Importar um CSV e tratá-lo com <code>pandas</code></li>
+          <li>Calcular estatísticas e gerar gráficos</li>
+          <li>Compartilhar um notebook público</li>
         </ul>
       </section>
 
       <section>
-        <h2>Por que CSV na Telemetria?</h2>
-        <p>CSV (Comma-Separated Values) é o formato mais comum para logs:</p>
+        <h2>Por que o Colab?</h2>
         <ul>
-          <li>Leve, legível, universalmente suportado</li>
-          <li>Ferramentas de solo exportam telemetria em CSV</li>
-          <li>Pandas, Excel, Google Sheets abrem diretamente</li>
-          <li>Perfeito para análise pós-voo</li>
+          <li>Roda no navegador - nada para instalar</li>
+          <li>Já vem com <code>pandas</code>, <code>matplotlib</code> e Python</li>
+          <li>Notebook salvo na sua conta Google</li>
+          <li>Fácil de compartilhar o link para revisão</li>
         </ul>
-        <pre><code class="language-csv">timestamp,altitude,temp,pressao,voltage
-100,120.5,25.3,101325,5.01
-200,245.1,24.8,100500,4.98
-300,368.7,24.2,99500,4.95</code></pre>
+        <p class="objective">Acesse: <strong>colab.research.google.com</strong></p>
       </section>
 
       <section>
-        <h2>Lendo CSV com DictReader</h2>
-        <p><code>csv.DictReader</code> mapeia cada linha para um dicionário:</p>
-        <pre><code class="language-python">import csv
-
-def ler_dados(caminho):
-    dados = []
-    with open(caminho, mode='r') as arquivo:
-        leitor = csv.DictReader(arquivo)
-        for linha in leitor:
-            dados.append(linha)
-    return dados
-
-# Uso
-dados = ler_dados("log_voo.csv")
-print(dados[0])  # primeira linha como dict</code></pre>
-        <p class="objective">Cada linha vira um dict com as colunas como chaves.</p>
+        <h2>Passo a Passo</h2>
+        <ol>
+          <li>Abra <code>colab.research.google.com</code> e entre com a conta Google</li>
+          <li>Clique em <strong>Novo notebook</strong></li>
+          <li>Renomeie o notebook para <strong><code>semana-01</code></strong></li>
+          <li>Importe o <code>cleaned.csv</code> (ícone de pasta &rarr; Upload)</li>
+          <li>Faça a análise nas células</li>
+          <li>Compartilhe o link (Qualquer pessoa com o link)</li>
+        </ol>
       </section>
 
       <section>
-        <h2>Convertendo Tipos</h2>
-        <p>CSV lê tudo como string — precisamos converter:</p>
-        <pre><code class="language-python">def converter_linha(linha):
-    return {
-        "timestamp": int(linha["timestamp"]),
-        "altitude": float(linha["altitude"]),
-        "temp": float(linha["temp"]),
-        "pressao": float(linha["pressao"]),
-        "voltage": float(linha["voltage"]),
-    }
-
-dados = [converter_linha(l) for l in ler_dados("log_voo.csv")]</code></pre>
+        <h2>O Dataset</h2>
+        <p><code>entregas/dados/semana-01/cleaned.csv</code> - sem cabeçalho, cada linha começa com <code>#51</code> e tem 24 campos:</p>
+        <pre><code class="language-text">ID, millis, pckt, alt, temp, humi, press,
+gx, gy, gz, ax, ay, az, vz, maxalt, state,
+hora, data, gps_alt, lat, lon, sat, pqd, rssi</code></pre>
+        <p class="objective"><code>alt</code> altitude · <code>vz</code> velocidade vertical · <code>ax/ay/az</code> aceleração</p>
       </section>
 
       <section>
-        <h2>Calculando Estatísticas</h2>
-        <pre><code class="language-python">def calcular_estatisticas(dados, campo):
-    valores = [linha[campo] for linha in dados]
-    return {
-        "media": sum(valores) / len(valores),
-        "maximo": max(valores),
-        "minimo": min(valores),
-        "amostras": len(valores),
-    }
+        <h2>Tratamento com pandas</h2>
+        <pre><code class="language-python">import pandas as pd
+from google.colab import files
+files.upload()   # suba o cleaned.csv
 
-stats_temp = calcular_estatisticas(dados, "temp")
-print(f"Temperatura media: {stats_temp['media']:.2f} C")
-print(f"Max: {stats_temp['maximo']:.2f} C")
-print(f"Min: {stats_temp['minimo']:.2f} C")</code></pre>
-        <p class="objective">Sempre valide se a lista não está vazia antes de dividir!</p>
+COLUNAS = ["ID","millis","pckt","alt","temp","humi","press",
+           "gx","gy","gz","ax","ay","az","vz","maxalt","state",
+           "hora","data","gps_alt","lat","lon","sat","pqd","rssi"]
+
+df = pd.read_csv("cleaned.csv", header=None, names=COLUNAS)
+df["ID"] = df["ID"].astype(str).str.lstrip("#").astype(int)
+
+for coluna in COLUNAS[1:]:
+    df[coluna] = pd.to_numeric(df[coluna], errors="coerce")
+
+df["tempo_s"] = (df["millis"] - df["millis"].min()) / 1000</code></pre>
       </section>
 
       <section>
-        <h2>Salvando Resumo em Arquivo</h2>
-        <pre><code class="language-python">def salvar_resumo(stats, nome_arquivo="resumo.txt"):
-    with open(nome_arquivo, "w") as f:
-        f.write("=== RESUMO DE TELEMETRIA ===\n\n")
-        for campo, valores in stats.items():
-            f.write(f"{campo}:\n")
-            f.write(f"  Media:  {valores['media']:.2f}\n")
-            f.write(f"  Max:    {valores['maximo']:.2f}\n")
-            f.write(f"  Min:    {valores['minimo']:.2f}\n")
-            f.write(f"  Amostras: {valores['amostras']}\n\n")
-    print(f"Resumo salvo em {nome_arquivo}")</code></pre>
+        <h2>Explorar e Estatísticas</h2>
+        <pre><code class="language-python">df.head()
+df.describe()
+
+alt = df["alt"]
+print(f"Amostras:       {alt.count()}")
+print(f"Altitude media: {alt.mean():.2f} m")
+print(f"Altitude max:   {alt.max():.2f} m")
+print(f"Altitude min:   {alt.min():.2f} m")</code></pre>
+        <p class="objective">Saída: 38 amostras, média 257.57, max 359.42, min 39.53.</p>
       </section>
 
       <section>
-        <h2>matplotlib — Primeiro Gráfico</h2>
+        <h2>Gráfico de Aceleração × Tempo</h2>
         <pre><code class="language-python">import matplotlib.pyplot as plt
 
-def plotar_altitude(dados):
-    tempos = [linha["timestamp"] for linha in dados]
-    altitudes = [linha["altitude"] for linha in dados]
-
-    plt.figure(figsize=(10, 5))
-    plt.plot(tempos, altitudes, color="#ff6b35", linewidth=2)
-    plt.title("Altitude vs Tempo")
-    plt.xlabel("Tempo (ms)")
-    plt.ylabel("Altitude (m)")
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig("altitude.png", dpi=150)
-    plt.show()</code></pre>
+plt.figure(figsize=(10, 5))
+plt.plot(df["tempo_s"], df["ax"], label="ax")
+plt.plot(df["tempo_s"], df["ay"], label="ay")
+plt.plot(df["tempo_s"], df["az"], label="az")
+plt.title("Aceleração x Tempo")
+plt.xlabel("Tempo (s)")
+plt.ylabel("Aceleração")
+plt.grid(True, alpha=0.3)
+plt.legend()
+plt.show()</code></pre>
       </section>
 
       <section>
-        <h2>Subplots — Múltiplos Sensores</h2>
-        <pre><code class="language-python">def plotar_multiplos(dados):
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8))
-    tempo = [l["timestamp"] for l in dados]
+        <h2>Gráfico de Velocidade e Altitude</h2>
+        <pre><code class="language-python">fig, ax1 = plt.subplots(figsize=(10, 5))
+ax1.plot(df["tempo_s"], df["alt"], color="#ff6b35")
+ax1.set_xlabel("Tempo (s)")
+ax1.set_ylabel("Altitude (m)", color="#ff6b35")
 
-    axs[0, 0].plot(tempo, [l["altitude"] for l in dados])
-    axs[0, 0].set_title("Altitude")
-    axs[0, 1].plot(tempo, [l["temp"] for l in dados], color="red")
-    axs[0, 1].set_title("Temperatura")
-    axs[1, 0].plot(tempo, [l["pressao"] for l in dados], color="green")
-    axs[1, 0].set_title("Pressao")
-    axs[1, 1].plot(tempo, [l["voltage"] for l in dados], color="orange")
-    axs[1, 1].set_title("Voltagem")
+ax2 = ax1.twinx()
+ax2.plot(df["tempo_s"], df["vz"], color="#2ea043")
+ax2.set_ylabel("Velocidade (vz)", color="#2ea043")
 
-    plt.tight_layout()
-    plt.savefig("telemetria_completa.png")</code></pre>
+plt.title("Altitude e Velocidade x Tempo")
+plt.show()</code></pre>
       </section>
 
       <section>
-        <h2>Tratamento de Erros</h2>
-        <p>Sempre considere que o arquivo pode estar ausente ou mal formatado:</p>
-        <pre><code class="language-python">def ler_dados_seguro(caminho):
-    try:
-        with open(caminho, mode='r') as f:
-            return list(csv.DictReader(f))
-    except FileNotFoundError:
-        print(f"Erro: arquivo {caminho} nao encontrado")
-        return []
-    except csv.Error as e:
-        print(f"Erro ao ler CSV: {e}")
-        return []</code></pre>
-      </section>
-
-      <section>
-        <h2>Script Completo</h2>
-        <pre><code class="language-python">import csv
-import matplotlib.pyplot as plt
-
-def main():
-    dados = ler_dados_seguro("log_voo.csv")
-    if not dados:
-        return
-
-    dados_convertidos = [converter_linha(l) for l in dados]
-
-    stats = {}
-    for campo in ["altitude", "temp", "pressao", "voltage"]:
-        stats[campo] = calcular_estatisticas(dados_convertidos, campo)
-
-    salvar_resumo(stats)
-    plotar_altitude(dados_convertidos)
-    plotar_multiplos(dados_convertidos)
-
-if __name__ == "__main__":
-    main()</code></pre>
+        <h2>Entrega: Link do Colab</h2>
+        <pre><code class="language-python"># No Colab: Compartilhar -> Qualquer pessoa com o link -> Copiar link
+# Ex.: https://colab.research.google.com/drive/xxxxxxxx</code></pre>
+        <p>Cole o link em <code>entregas/&lt;nome&gt;/semana-01/README.md</code>.</p>
+        <p class="objective">Sem o link público, não é possível revisar.</p>
       </section>
 
       <section>
         <h2>Exercícios</h2>
         <ol>
-          <li>Criar um CSV de telemetria simulado (10+ linhas)</li>
-          <li>Ler e converter os dados corretamente</li>
-          <li>Calcular média, max, min para cada grandeza</li>
-          <li>Salvar resumo em <code>resumo.txt</code></li>
-          <li>Gerar gráfico de altitude e temperatura</li>
-          <li>(Extra) Adicionar desvio padrão</li>
+          <li>Criar o notebook <code>semana-01</code> e importar o CSV</li>
+          <li>Tratar os dados com pandas (limpar ID, converter tipos)</li>
+          <li>Calcular as estatísticas de <code>alt</code></li>
+          <li>Gráfico de aceleração (<code>ax</code>, <code>ay</code>, <code>az</code>) × tempo</li>
+          <li>Gráfico de velocidade (<code>vz</code>) e altitude (<code>alt</code>)</li>
+          <li>Compartilhar o link e colar no README da semana</li>
         </ol>
         <p class="objective">Entregar via PR até domingo.</p>
       </section>
 
       <section>
-        <h2>Resumo & Conclusão</h2>
+        <h2>Resumo &amp; Conclusão</h2>
         <ul>
-          <li>CSV lido e convertido com <code>csv.DictReader</code></li>
-          <li>Estatísticas calculadas manualmente (sem pandas)</li>
-          <li>Resumo salvo em arquivo de texto</li>
-          <li>Gráficos gerados com matplotlib</li>
+          <li>Notebook criado no Colab e CSV importado</li>
+          <li>Tratamento completo com pandas</li>
+          <li>Gráficos de aceleração, velocidade e altitude</li>
+          <li>Link público para revisão</li>
         </ul>
-        <p>Python é a base de toda a análise de telemetria.</p>
         <p class="subtitle">Próximo passo: Semana 02 — Python aplicado</p>
       </section>
 

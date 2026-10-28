@@ -17,7 +17,7 @@ jobs:
       - run: pip install pylint
       - name: Check Python files
         run: |
-          FILES=$(find . -name "*.py" -not -path "./.pio/*" -not -path "./venv/*" -not -path "./.opencode/*")
+          FILES=$(find . -name "*.py" -not -path "./.pio/*" -not -path "./venv/*" -not -path "./.opencode/*" -not -path "./entregas/*")
           if [ -z "$FILES" ]; then
             echo "Nenhum arquivo .py encontrado — pulando lint"
             exit 0
@@ -52,4 +52,4 @@ jobs:
       - uses: DavidAnson/markdownlint-cli2-action@v16
         with:
           globs: "**/*.md"
-          ignore: ".github/** node_modules/** .pio/** venv/** .opencode/**"
+          ignore: ".github/** node_modules/** .pio/** venv/** .opencode/** entregas/**"

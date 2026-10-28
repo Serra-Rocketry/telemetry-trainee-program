@@ -17,3 +17,4 @@ Slides para cada semana do treinamento. Use as setas do teclado para navegar.
 | 6 | KiCad básico | [Abrir](semana-06.html) |
 | 7 | Flight Computer & Helike | [Abrir](semana-07.html) |
 | 8 | Capstone | [Abrir](semana-08.html) |
+| 9 | Chips personalizados no Wokwi | [Abrir](semana-09.html) |

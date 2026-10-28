@@ -32,25 +32,32 @@ Toda semana tem uma sessão de revisão onde o instrutor e outros trainees revis
 
 ## Git e GitHub
 
-### Como crio uma branch?
+### Como funciona meu fork?
+
+Você trabalha direto na branch `main` do seu fork - não precisa criar branch pessoal. Clone o seu fork e adicione o repositório original como `upstream`:
 
 ```bash
-git checkout -b nome-sobrenome
+git clone https://github.com/<seu-usuario>/telemetry-trainee-program.git
+cd telemetry-trainee-program
+git remote add upstream https://github.com/Serra-Rocketry/telemetry-trainee-program.git
 ```
 
-### Esqueci de criar a branch antes de committar
+### Esqueci de sincronizar o fork antes de committar
 
-Se já committou na `main`, crie a branch e faça o push:
+Atualize a `main` do seu fork com o repositório original e depois continue:
+
 ```bash
-git checkout -b nome-sobrenome
-git push -u origin nome-sobrenome
+git checkout main
+git pull upstream main
+git push origin main
 ```
 
 ### Meu PR está com conflito
 
-1. Atualize sua branch com a main:
+1. Atualize sua cópia com a main original:
 ```bash
-git pull origin main
+git checkout main
+git pull upstream main
 ```
 2. Resolva os conflitos no editor
 3. Faça commit e push
@@ -237,9 +244,9 @@ Prefixo que descreve a natureza da mudança:
 - `test:` - testes
 - `refactor:` - refatoração
 
-### Posso usar outro nome de branch?
+### Posso criar uma branch pessoal?
 
-Não. Use o formato `nome-sobrenome` para identificação.
+Não é necessário. Trabalhe na branch `main` do seu fork e abra o PR para o repositório original.
 
 ### Como sei se meu PR foi aceito?
 

@@ -37,7 +37,7 @@
         <h2>Objetivos de Aprendizado</h2>
         <ul>
           <li>Configurar o ambiente de desenvolvimento completo</li>
-          <li>Dominar o fluxo básico do Git (clone, branch, commit, push)</li>
+          <li>Dominar o fluxo básico do Git (fork, clone, commit, push)</li>
           <li>Abrir seu primeiro Pull Request</li>
           <li>Entender a estrutura e o fluxo do treinamento</li>
         </ul>
@@ -85,23 +85,40 @@ code --version</code></pre>
         <p>Configure seu nome e email (globais):</p>
         <pre><code class="language-bash">git config --global user.name "Seu Nome"
 git config --global user.email "seu@email.com"</code></pre>
-        <p>Clone o repositório do treinamento:</p>
-        <pre><code class="language-bash">git clone https://github.com/organizacao/telemetry-trainee-program.git
-cd telemetry-trainee-program</code></pre>
+        <p>Faça um <strong>fork</strong> no GitHub e clone o <strong>seu fork</strong>:</p>
+        <pre><code class="language-bash">git clone https://github.com/&lt;seu-usuario&gt;/telemetry-trainee-program.git
+cd telemetry-trainee-program
+git remote add upstream https://github.com/Serra-Rocketry/telemetry-trainee-program.git</code></pre>
+        <p class="objective">Você trabalha no seu fork e abre PR para o repositório original.</p>
       </section>
 
       <section>
-        <h2>Criando sua Branch</h2>
-        <p>Cada trainee trabalha na própria branch:</p>
-        <pre><code class="language-bash"># Criar e mudar para a branch
-git checkout -b seu-nome-sobrenome
+        <h2>Estrutura de Entregas</h2>
+        <p>Cada trainee entrega dentro de <code>entregas/&lt;nome-sobrenome&gt;/</code>:</p>
+        <pre><code class="language-text">entregas/
+└── seu-nome-sobrenome/
+    ├── README.md              # índice pessoal
+    └── semana-00/
+        ├── README.md          # o que foi feito
+        └── hello.py</code></pre>
+        <ul>
+          <li><strong>Nunca apague</strong> o material do repositório</li>
+          <li>Uma subpasta por semana: <code>semana-00</code> … <code>semana-09</code></li>
+          <li>Todo commit vai dentro da sua pasta</li>
+        </ul>
+        <p class="objective">Detalhes na doc "Padrão de Entregas".</p>
+      </section>
 
-# Verificar branches existentes
-git branch
+      <section>
+        <h2>Trabalhando no Fork</h2>
+        <p>Você trabalha na branch <code>main</code> do seu fork (não precisa criar branch pessoal):</p>
+        <pre><code class="language-bash"># Sincronizar a main do fork com o repositório original
+git checkout main
+git pull upstream main
 
 # Verificar status
 git status</code></pre>
-        <p class="objective">Nunca commitar na branch <code>main</code> ou <code>master</code>.</p>
+        <p class="objective">Só escreva dentro de <code>entregas/&lt;nome&gt;/</code>.</p>
       </section>
 
       <section>
@@ -111,20 +128,20 @@ git status
 git diff
 
 # Adicionar arquivos ao stage
-git add arquivo.py
+git add entregas/seu-nome-sobrenome
 git add .               # todos os arquivos
 
 # Criar o commit
-git commit -m "semana-00: adiciona script hello world"
+git commit -m "docs: adiciona hello world da semana 00"
 
-# Enviar para o GitHub
-git push -u origin seu-nome-sobrenome</code></pre>
+# Enviar para o GitHub (seu fork)
+git push origin main</code></pre>
         <p>Commits devem ser <strong>atômicos</strong> e com mensagens descritivas.</p>
       </section>
 
       <section>
         <h2>Pull Request "Hello World"</h2>
-        <p>Objetivo: criar um arquivo <code>hello.py</code> na sua branch e abrir um PR.</p>
+        <p>Objetivo: criar <code>entregas/&lt;nome&gt;/semana-00/hello.py</code> e abrir um PR.</p>
         <pre><code class="language-python"># hello.py
 def main():
     print("Hello from telemetry trainee!")
@@ -133,7 +150,7 @@ if __name__ == "__main__":
     main()</code></pre>
         <ol>
           <li>Commit e push do arquivo</li>
-          <li>Ir ao GitHub.com → abrir PR da sua branch para <code>main</code></li>
+          <li>Ir ao GitHub.com → abrir PR da <code>main</code> do fork para <code>main</code> original</li>
           <li>Título: <em>"Semana 00 — Nome Sobrenome"</em></li>
           <li>Adicionar revisores (mentores)</li>
         </ol>
@@ -171,7 +188,7 @@ Adiciona script inicial hello.py conforme requisito da Semana 00.
 
       <section>
         <h2>Fluxo do Treinamento</h2>
-        <p>8 semanas, 8 módulos:</p>
+        <p>9 semanas, 9 módulos:</p>
         <ul>
           <li><strong>S00</strong> — Onboarding & GitHub</li>
           <li><strong>S01</strong> — Python básico (CSV, matplotlib)</li>
@@ -182,6 +199,7 @@ Adiciona script inicial hello.py conforme requisito da Semana 00.
           <li><strong>S06</strong> — KiCad básico (esquemático, PCB)</li>
           <li><strong>S07</strong> — Flight Computer & Helike</li>
           <li><strong>S08</strong> — Capstone (projeto final)</li>
+          <li><strong>S09</strong> — Chips personalizados no Wokwi</li>
         </ul>
       </section>
 
@@ -210,10 +228,27 @@ Adiciona script inicial hello.py conforme requisito da Semana 00.
       </section>
 
       <section>
+        <h2>Rotina das Próximas Semanas</h2>
+        <ol>
+          <li>Sincronize o fork: <code>git pull upstream main</code></li>
+          <li>Crie <code>entregas/&lt;nome&gt;/semana-XX/</code></li>
+          <li>Commit + push na <code>main</code> do fork</li>
+          <li>Abra uma <strong>nova PR</strong> com os commits da semana</li>
+        </ol>
+        <pre><code class="language-bash">git checkout main && git pull upstream main && git push origin main
+mkdir -p entregas/seu-nome-sobrenome/semana-01
+# ... trabalhe na semana ...
+git add entregas/seu-nome-sobrenome/semana-01
+git commit -m "feat: entrega da semana 01"
+git push origin main</code></pre>
+      </section>
+
+      <section>
         <h2>Resumo & Conclusão</h2>
         <ul>
           <li>Ambiente configurado e verificado</li>
-          <li>Fluxo Git: clone → branch → commit → push → PR</li>
+          <li>Fluxo Git: fork → clone → commit → push → PR</li>
+          <li>Entrega padronizada em <code>entregas/&lt;nome&gt;/semana-XX/</code></li>
           <li>Primeiro PR "hello world" criado</li>
           <li>Estrutura do treinamento compreendida</li>
         </ul>

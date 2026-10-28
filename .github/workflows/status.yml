@@ -1,0 +1,33 @@
+name: Atualiza status dos trainees
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  status:
+    name: Gerar docs/status.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Gerar status
+        run: python scripts/gerar-status.py
+      - name: Commitar mudanças
+        run: |
+          if [ -z "$(git status --porcelain docs/status.md)" ]; then
+            echo "Sem mudanças no status"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/status.md
+          git commit -m "chore: atualiza status dos trainees"
+          git push

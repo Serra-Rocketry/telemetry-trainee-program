@@ -56,7 +56,7 @@ h1 { font-size: 28px; margin-bottom: 8px; }
 
 <script>
 const questions = [
-  { q: 'Qual função do módulo <code>csv</code> é mais adequada para ler um arquivo CSV onde a primeira linha contém os nomes das colunas?', type: 'mc', options: ['a) <code>csv.reader()</code>', 'b) <code>csv.DictReader()</code>', 'c) <code>csv.writer()</code>', 'd) <code>csv.DictWriter()</code>'], correct: 1, explanation: '' },
+  { q: 'O arquivo <code>cleaned.csv</code> não tem cabeçalho e cada linha começa com <code>#51,</code>. Qual chamada lê esse arquivo corretamente com pandas?', type: 'mc', options: ['a) <code>pd.read_csv(caminho)</code>', 'b) <code>pd.read_csv(caminho, header=None, names=COLUNAS)</code>', 'c) <code>pd.read_csv(caminho, sep=";")</code>', 'd) <code>pd.read_csv(caminho, index_col=0)</code>'], correct: 1, explanation: 'sem cabeçalho, passamos <code>header=None</code> e os nomes das colunas.' },
   { q: 'O bloco <code>try/except</code> em Python só pode capturar um tipo de exceção por vez.', type: 'tf', options: ['Verdadeiro', 'Falso'], correct: 1, explanation: 'é possível capturar múltiplos tipos com <code>except (Tipo1, Tipo2):</code> ou com múltiplos blocos <code>except</code>.' },
   { q: 'Como você calcularia a média de uma lista de números chamada <code>valores</code> em Python? Escreva o código.', type: 'short', options: [], correct: '<code>sum(valores) / len(valores)</code>' },
   { q: 'Ao abrir um arquivo CSV para leitura, qual modo de abertura é o mais indicado?', type: 'mc', options: ['a) <code>"w"</code>', 'b) <code>"a"</code>', 'c) <code>"r"</code>', 'd) <code>"rb"</code>'], correct: 2, explanation: '' },
@@ -64,7 +64,7 @@ const questions = [
   { q: 'Escreva um trecho de código que tenta abrir o arquivo <code>dados.csv</code> e, caso ele não exista, imprime "Arquivo não encontrado".', type: 'short', options: [], correct: 'try:<br>&nbsp;&nbsp;with open("dados.csv", "r") as arquivo:<br>&nbsp;&nbsp;&nbsp;&nbsp;print("Arquivo aberto com sucesso")<br>except FileNotFoundError:<br>&nbsp;&nbsp;print("Arquivo não encontrado")' },
   { q: 'A função <code>max()</code> em Python pode ser usada tanto com listas de números quanto com listas de strings.', type: 'tf', options: ['Verdadeiro', 'Falso'], correct: 0, explanation: 'strings também são ordenáveis lexicograficamente.' },
   { q: 'O que a função <code>plt.show()</code> faz?', type: 'mc', options: ['a) Salva o gráfico em um arquivo', 'b) Exibe o gráfico na tela', 'c) Fecha todas as figuras abertas', 'd) Limpa a figura atual'], correct: 1, explanation: '' },
-  { q: 'Dado um <code>DictReader</code>, como acessar o valor da coluna <code>"temperatura"</code> da primeira linha?', type: 'short', options: [], correct: '<code>next(reader)["temperatura"]</code> (onde <code>reader</code> é o objeto <code>DictReader</code>)' }
+  { q: 'No pacote <code>#51,...</code>, quais campos correspondem, respectivamente, à altitude e ao tempo em milissegundos?', type: 'mc', options: ['a) <code>alt</code> e <code>millis</code>', 'b) <code>press</code> e <code>pckt</code>', 'c) <code>maxalt</code> e <code>lat</code>', 'd) <code>temp</code> e <code>hora</code>'], correct: 0, explanation: '' }
 ];
 
 let userAnswers = {};

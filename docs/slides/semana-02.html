@@ -29,261 +29,204 @@
       <section>
         <h1>Semana 02</h1>
         <h2>Python Aplicado</h2>
-        <p class="subtitle">Parsing, validação e comunicação serial</p>
+        <p class="subtitle">Parsing e validação do log de voo</p>
       </section>
 
       <section>
         <h2>Objetivos de Aprendizado</h2>
         <ul>
-          <li>Fazer parsing de pacotes delimitados da serial</li>
-          <li>Validar dados (range, NaN, checksum)</li>
-          <li>Conectar com Flight Computer via serial</li>
-          <li>Processar dados reais em tempo real</li>
+          <li>Parsear os pacotes do log serial cru</li>
+          <li>Ignorar linhas que não são pacote (<code>[STATS]</code>, <code>[MESH]</code>, <code>[LOST]</code>)</li>
+          <li>Validar os campos (tipos e ranges físicos)</li>
+          <li>Processar o arquivo e gerar um resumo</li>
         </ul>
       </section>
 
       <section>
-        <h2>Por que Parsing é Importante?</h2>
-        <p>O Flight Computer envia dados como strings delimitadas:</p>
-        <pre><code class="language-text">$T,100,120.5,25.3,101325,5.01*3F
-$T,200,245.1,24.8,100500,4.98*2D
-$T,300,368.7,24.2,99500,4.95*1B</code></pre>
+        <h2>Contexto</h2>
+        <p>Durante o voo, o foguete envia os pacotes por rádio e o <strong>computador da base</strong> recebe tudo como um <strong>log cru</strong>.</p>
         <ul>
-          <li><strong>$T</strong> — tipo do pacote (telemetry)</li>
-          <li><strong>100,120.5,...</strong> — dados separados por vírgula</li>
-          <li><strong>*3F</strong> — checksum hexadecimal</li>
+          <li>Misturado com mensagens do receptor e pacotes incompletos</li>
+          <li>A base precisa <strong>limpar rápido</strong> para <strong>plotar em tempo real</strong></li>
+          <li>Plotar lixo = leitura inútil do voo</li>
         </ul>
+        <pre><code class="language-text">log cru  ->  [parser + validador]  ->  dados limpos (CSV)  ->  gráficos</code></pre>
       </section>
 
       <section>
-        <h2>Estrutura do Pacote</h2>
-        <p>Formato definido pelo protocolo de telemetria:</p>
-        <pre><code class="language-text">$&lt;tipo&gt;,&lt;timestamp&gt;,&lt;altitude&gt;,&lt;temp&gt;,&lt;pressao&gt;,&lt;voltage&gt;*&lt;checksum&gt;</code></pre>
-        <p>Campos:</p>
+        <h2>O Log Cru</h2>
+        <p>Arquivo <code>entregas/dados/semana-02/voo_thonyan.txt</code> - log serial de uma sessão de recepção:</p>
+        <pre><code class="language-text">[LoRa] RX (RSSI=-121): #51,2003976,...   # pacote via LoRa (22 campos)
+[STATS] Primeiro pacote recebido — count=34647
+[MESH] Beacons ativos: 0/0 | ouvindo o satellite: 0
+[LOST] 22 pacote(s) perdido(s) — count 34647 -> 34670
+#51,2003976,34647,39.53,42.34,...        # pacote completo (24 campos)</code></pre>
+        <p class="objective">Só as linhas <code>#51,</code> são pacotes completos.</p>
+      </section>
+
+      <section>
+        <h2>Formato do Pacote</h2>
+        <p>Mesmos 24 campos da Semana 1, separados por vírgula:</p>
+        <pre><code class="language-text">ID, millis, pckt, alt, temp, humi, press,
+gx, gy, gz, ax, ay, az, vz, maxalt, state,
+hora, data, gps_alt, lat, lon, sat, pqd, rssi</code></pre>
+        <pre><code class="language-text">#51,2003976,34647,39.53,42.34,0.00,957.29,...</code></pre>
+      </section>
+
+      <section>
+        <h2>Atenção às linhas [LoRa]</h2>
+        <p>A linha <code>[LoRa] RX</code> também contém um pacote, mas <strong>incompleto</strong>:</p>
         <ul>
-          <li><code>tipo</code>: T (telemetria), E (erro), S (status)</li>
-          <li><code>timestamp</code>: ms desde o boot</li>
-          <li><code>altitude</code>: metros</li>
-          <li><code>temp</code>: graus Celsius</li>
-          <li><code>pressao</code>: Pascal</li>
-          <li><code>voltage</code>: Volts</li>
-          <li><code>checksum</code>: XOR de todos os bytes entre $ e *</li>
+          <li>Vem <strong>sem</strong> os campos <code>hora</code> e <code>data</code> &rarr; <strong>22 campos</strong>, não 24</li>
+          <li>O <code>rssi</code> vem zerado (o valor real está no texto <code>RSSI=...</code>)</li>
         </ul>
+        <p>O parser deve rejeitá-la (contagem de campos diferente de 24).</p>
       </section>
 
       <section>
         <h2>Parser de Pacotes</h2>
-        <pre><code class="language-python">def parse_packet(linha):
-    if not linha.startswith("$"):
-        return None
+        <pre><code class="language-python">COLUNAS = ["ID", "millis", "pckt", "alt", "temp", "humi", "press",
+           "gx", "gy", "gz", "ax", "ay", "az", "vz", "maxalt", "state",
+           "hora", "data", "gps_alt", "lat", "lon", "sat", "pqd", "rssi"]
 
-    # Remove $ e quebra no *
-    conteudo, checksum_str = linha[1:].split("*")
-    campos = conteudo.split(",")
-    tipo = campos[0]
+def parse_packet(linha):
+    linha = linha.strip()
+    pos = linha.find("#51,")
+    if pos == -1:
+        return None                     # nao e um pacote
 
-    return {
-        "tipo": tipo,
-        "timestamp": int(campos[1]),
-        "altitude": float(campos[2]),
-        "temp": float(campos[3]),
-        "pressao": float(campos[4]),
-        "voltage": float(campos[5]),
-        "checksum": int(checksum_str, 16),
-        "raw": linha,
-    }</code></pre>
+    campos = linha[pos:].split(",")
+    if len(campos) != 24:
+        return None                     # incompleto (ex.: [LoRa] RX)
+
+    try:
+        dados = dict(zip(COLUNAS, campos))
+        dados["ID"] = int(dados["ID"].lstrip("#"))
+        for nome in COLUNAS[1:]:
+            dados[nome] = float(dados[nome])
+        return dados
+    except ValueError:
+        return None                     # campo nao numerico</code></pre>
       </section>
 
       <section>
-        <h2>Validação de Checksum</h2>
-        <pre><code class="language-python">def calcular_checksum(linha):
-    # XOR de todos os bytes entre $ e *
-    conteudo = linha[1:].split("*")[0]
-    checksum = 0
-    for char in conteudo:
-        checksum ^= ord(char)
-    return checksum
-
-def validar_checksum(linha):
-    _, checksum_str = linha[1:].split("*")
-    esperado = int(checksum_str, 16)
-    calculado = calcular_checksum(linha)
-    return calculado == esperado
-
-# Uso
-if validar_checksum("$T,100,120.5,25.3*3F"):
-    print("Checksum OK")
-else:
-    print("Dados corrompidos!")</code></pre>
-      </section>
-
-      <section>
-        <h2>Validação de Range e NaN</h2>
-        <pre><code class="language-python">import math
-
-LIMITES = {
-    "altitude": (-500, 50000),
-    "temp": (-40, 85),
-    "pressao": (30000, 110000),
-    "voltage": (3.0, 5.5),
+        <h2>Validação de Range</h2>
+        <pre><code class="language-python">LIMITES = {
+    "alt":   (-100, 10000),   # metros
+    "temp":  (-40, 85),       # Celsius
+    "press": (300, 1100),     # hPa
+    "lat":   (-90, 90),
+    "lon":   (-180, 180),
+    "sat":   (0, 30),
+    "rssi":  (-140, 0),       # dBm
 }
 
-def validar_dados(packet):
-    if math.isnan(packet["altitude"]):
-        return False, "altitude NaN"
-    if math.isnan(packet["temp"]):
-        return False, "temp NaN"
-
+def validar(pacote):
     for campo, (min_v, max_v) in LIMITES.items():
-        valor = packet[campo]
-        if valor &lt; min_v or valor &gt; max_v:
-            return False, f"{campo} fora de range: {valor}"
-
-    return True, "OK"</code></pre>
+        if not (min_v &lt;= pacote[campo] &lt;= max_v):
+            return False
+    return True</code></pre>
       </section>
 
       <section>
-        <h2>Pipeline de Validação</h2>
-        <pre><code class="language-python">def processar_linha(linha):
-    resultado = {"valido": False, "pacote": None, "erro": None}
+        <h2>Pipeline de Processamento</h2>
+        <pre><code class="language-python">def processar(caminho):
+    total = validos = parse_err = valid_rej = ignoradas = perdidos = 0
 
-    if not validar_checksum(linha):
-        resultado["erro"] = "Checksum invalido"
-        return resultado
-
-    packet = parse_packet(linha)
-    if packet is None:
-        resultado["erro"] = "Formato invalido"
-        return resultado
-
-    valido, erro = validar_dados(packet)
-    if not valido:
-        resultado["erro"] = erro
-        return resultado
-
-    resultado["valido"] = True
-    resultado["pacote"] = packet
-    return resultado</code></pre>
-      </section>
-
-      <section>
-        <h2>Conectando com Serial</h2>
-        <pre><code class="language-python">import serial
-
-def conectar_flight_computer(porta="/dev/ttyACM0", baud=115200):
-    try:
-        ser = serial.Serial(
-            port=porta,
-            baudrate=baud,
-            timeout=1,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-        )
-        print(f"Conectado a {porta} a {baud} baud")
-        return ser
-    except serial.SerialException as e:
-        print(f"Erro ao conectar: {e}")
-        return None</code></pre>
-        <p class="objective">Linux: o usuário precisa estar no grupo <code>dialout</code>.</p>
-      </section>
-
-      <section>
-        <h2>Leitura em Tempo Real</h2>
-        <pre><code class="language-python">def ler_telemetria(ser, callback, max_linhas=100):
-    contador = 0
-    while contador &lt; max_linhas:
-        try:
-            linha = ser.readline().decode("utf-8").strip()
+    with open(caminho) as f:
+        for linha in f:
+            linha = linha.strip()
             if not linha:
                 continue
+            total += 1
 
-            resultado = processar_linha(linha)
-            if resultado["valido"]:
-                callback(resultado["pacote"])
-                contador += 1
+            if linha.startswith("["):        # [LoRa], [STATS], [MESH], [LOST]
+                ignoradas += 1
+                if linha.startswith("[LOST]"):
+                    perdidos += int(linha.split("perdido")[0].split()[-1])
+                continue
+
+            pacote = parse_packet(linha)
+            if pacote is None:
+                parse_err += 1
+            elif not validar(pacote):
+                valid_rej += 1
             else:
-                print(f"Pacote rejeitado: {resultado['erro']}")
+                validos += 1
 
-        except serial.SerialException:
-            print("Conexao perdida!")
-            break
-
-def exibir_pacote(pkt):
-    print(f"[{pkt['timestamp']}] Alt={pkt['altitude']:.1f}m "
-          f"T={pkt['temp']:.1f}C P={pkt['pressao']:.0f}Pa")</code></pre>
+    return total, validos, parse_err, valid_rej, ignoradas, perdidos</code></pre>
       </section>
 
       <section>
-        <h2>Salvando em CSV</h2>
+        <h2>Gerar o CSV Tratado</h2>
+        <p>Salve os pacotes válidos em <code>dados_tratados.csv</code>, <strong>com cabeçalho</strong>:</p>
         <pre><code class="language-python">import csv
 
-class LoggerCSV:
-    def __init__(self, caminho="log_telemetria.csv"):
-        self.arquivo = open(caminho, "w", newline="")
-        self.escritor = csv.DictWriter(
-            self.arquivo,
-            fieldnames=["timestamp", "altitude", "temp", "pressao", "voltage"]
-        )
-        self.escritor.writeheader()
-
-    def escrever(self, pacote):
-        self.escritor.writerow({
-            "timestamp": pacote["timestamp"],
-            "altitude": pacote["altitude"],
-            "temp": pacote["temp"],
-            "pressao": pacote["pressao"],
-            "voltage": pacote["voltage"],
-        })
-
-    def fechar(self):
-        self.arquivo.close()</code></pre>
+with open("dados_tratados.csv", "w", newline="") as f:
+    escritor = csv.DictWriter(f, fieldnames=COLUNAS)
+    escritor.writeheader()
+    for pacote in pacotes_validos:
+        escritor.writerow(pacote)</code></pre>
+        <pre><code class="language-text">ID,millis,pckt,alt,temp,humi,press,gx,gy,gz,ax,ay,az,vz,maxalt,state,hora,data,gps_alt,lat,lon,sat,pqd,rssi
+51,2003976,34647,39.53,42.34,...</code></pre>
+        <p class="objective">Com cabeçalho, o Colab lê direto - sem <code>header=None</code>.</p>
       </section>
 
       <section>
-        <h2>Script Principal</h2>
-        <pre><code class="language-python">def main():
-    ser = conectar_flight_computer()
-    if ser is None:
-        return
+        <h2>Saída Esperada</h2>
+        <pre><code class="language-text">Processando...
 
-    logger = LoggerCSV("voo_2024.csv")
+Resumo:
+  Linhas lidas:     118
+  Pacotes:           38
+  Validos:           38
+  Parse err:          0
+  Valid rej:          0
+  Taxa OK:          100%
+  Ignoradas:         80
+  Pacotes perdidos: 762
+CSV tratado salvo em dados_tratados.csv</code></pre>
+        <p class="objective">38 pacotes + 80 linhas ignoradas = 118 linhas.</p>
+      </section>
 
-    def callback(pacote):
-        exibir_pacote(pacote)
-        logger.escrever(pacote)
+      <section>
+        <h2>Bônus: Pacotes Perdidos</h2>
+        <p>As linhas <code>[LOST]</code> trazem quantos pacotes não chegaram entre dois contadores:</p>
+        <pre><code class="language-text">[LOST] 22 pacote(s) perdido(s) — count 34647 -> 34670</code></pre>
+        <p>Some o valor de cada linha para obter o total (<code>762</code> neste log).</p>
+        <p class="objective">Bônus: mostrar quantos pacotes se perderam no enlace de rádio.</p>
+      </section>
 
-    try:
-        ler_telemetria(ser, callback, max_linhas=500)
-    except KeyboardInterrupt:
-        print("\nEncerrando...")
-    finally:
-        logger.fechar()
-        ser.close()
-        print("Arquivo salvo. Conexao fechada.")
+      <section>
+        <h2>Rodar no Colab</h2>
+        <p>O CSV tratado abre direto no Colab (como na Semana 1):</p>
+        <pre><code class="language-python">import pandas as pd
+df = pd.read_csv("dados_tratados.csv")   # já tem cabeçalho
+df["tempo_s"] = (df["millis"] - df["millis"].min()) / 1000
 
-if __name__ == "__main__":
-    main()</code></pre>
+df.plot(x="tempo_s", y=["ax", "ay", "az"])   # aceleração x tempo</code></pre>
+        <p class="objective">Mesmos gráficos da Semana 1, agora a partir dos dados limpos.</p>
       </section>
 
       <section>
         <h2>Exercícios</h2>
         <ol>
-          <li>Implementar parser completo com validação de checksum</li>
-          <li>Adicionar validação de range para todos os campos</li>
-          <li>Detectar e contar pacotes inválidos</li>
-          <li>Conectar com Flight Computer (ou simulador) e logar 100 pacotes</li>
-          <li>Gerar estatísticas dos dados coletados</li>
+          <li>Implementar o <code>parse_packet</code> (rejeitar 22 campos sem quebrar)</li>
+          <li>Implementar <code>validar</code> com todos os ranges</li>
+          <li>Gerar o <code>dados_tratados.csv</code> com cabeçalho</li>
+          <li>Abrir o CSV no Colab e refazer os gráficos da Semana 1</li>
+          <li>(Extra) Contar os pacotes perdidos a partir das linhas <code>[LOST]</code></li>
         </ol>
         <p class="objective">Entregar via PR até domingo.</p>
       </section>
 
       <section>
-        <h2>Resumo & Conclusão</h2>
+        <h2>Resumo &amp; Conclusão</h2>
         <ul>
-          <li>Pacotes delimitados com checksum implementados</li>
-          <li>Validação em 3 camadas: formato, checksum, range</li>
-          <li>Conexão serial com Flight Computer estabelecida</li>
-          <li>Dados salvos em CSV para análise posterior</li>
+          <li>Parser extrai apenas os pacotes de 24 campos</li>
+          <li>Linhas de meta (<code>[STATS]</code>, <code>[MESH]</code>, <code>[LOST]</code>) são ignoradas</li>
+          <li>Validação em duas camadas: formato e range</li>
+          <li><code>dados_tratados.csv</code> gerado e plotado no Colab</li>
         </ul>
         <p>Python é a ponte entre o hardware e a análise de dados.</p>
         <p class="subtitle">Próximo passo: Semana 03 — Arduino IDE</p>
